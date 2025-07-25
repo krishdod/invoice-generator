@@ -98,6 +98,7 @@ class DriveService:
             # Method 3: Try OAuth2 token from environment variable (for production)
             if not creds:
                 oauth_token_json = os.environ.get('GOOGLE_OAUTH_TOKEN_JSON')
+                logger.info(f"Checking for GOOGLE_OAUTH_TOKEN_JSON: {'Found' if oauth_token_json else 'Not found'}")
                 if oauth_token_json:
                     try:
                         import tempfile
@@ -171,8 +172,9 @@ class DriveService:
                 logger.error("Available methods:")
                 logger.error("1. Set GOOGLE_SERVICE_ACCOUNT_JSON environment variable (recommended for production)")
                 logger.error("2. Place service_account.json in backend/config/")
-                logger.error("3. Place credentials.json in backend/config/ and run locally for OAuth2")
-                logger.error("4. Set GOOGLE_OAUTH_CREDENTIALS_JSON environment variable")
+                logger.error("3. Set GOOGLE_OAUTH_TOKEN_JSON environment variable (your existing token)")
+                logger.error("4. Place credentials.json in backend/config/ and run locally for OAuth2")
+                logger.error("5. Set GOOGLE_OAUTH_CREDENTIALS_JSON environment variable")
                 return False
             
             self.credentials = creds
