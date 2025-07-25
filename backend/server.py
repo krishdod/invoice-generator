@@ -9,7 +9,7 @@ import os
 import json
 from datetime import datetime
 import logging
-from backend.drive_service import DriveService
+from drive_service import DriveService
 
 # Setup Flask app
 app = Flask(__name__)
