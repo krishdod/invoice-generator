@@ -1,0 +1,7 @@
+{
+  "google_drive": {
+    "folder_id": "1XupXCmHoC-a9en9Cdv4PxMUxsh-ehOQY",
+    "auto_upload": true,
+    "file_naming": "invoice_{invoice_number}_{date}.pdf"
+  }
+}
