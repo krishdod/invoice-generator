@@ -12,6 +12,7 @@ from googleapiclient.http import MediaFileUpload
 from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
 from google_auth_oauthlib.flow import InstalledAppFlow
+from google.oauth2 import service_account
 
 # Setup logging
 logging.basicConfig(level=logging.INFO)
@@ -60,27 +61,95 @@ class DriveService:
             module_dir = os.path.dirname(os.path.abspath(__file__))
             token_path = os.path.join(module_dir, 'config', 'token.json')
             credentials_path = os.path.join(module_dir, 'config', 'credentials.json')
+            service_account_path = os.path.join(module_dir, 'config', 'service_account.json')
             
-            # Load existing token
-            if os.path.exists(token_path):
-                creds = Credentials.from_authorized_user_file(token_path, self.SCOPES)
-            
-            # If no valid credentials, get new ones
-            if not creds or not creds.valid:
-                if creds and creds.expired and creds.refresh_token:
-                    creds.refresh(Request())
-                else:
-                    if not os.path.exists(credentials_path):
-                        logger.error("credentials.json not found. Please download it from Google Cloud Console.")
-                        return False
+            # Method 1: Try service account authentication (best for production)
+            service_account_json = os.environ.get('GOOGLE_SERVICE_ACCOUNT_JSON')
+            if service_account_json:
+                try:
+                    import tempfile
+                    # Create temporary service account file from environment variable
+                    with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as temp_file:
+                        temp_file.write(service_account_json)
+                        temp_service_account_path = temp_file.name
                     
+                    try:
+                        creds = service_account.Credentials.from_service_account_file(
+                            temp_service_account_path, scopes=self.SCOPES)
+                        logger.info("Using service account authentication from environment variable")
+                    finally:
+                        # Clean up temporary file
+                        try:
+                            os.unlink(temp_service_account_path)
+                        except:
+                            pass
+                except Exception as e:
+                    logger.error(f"Service account authentication from env var failed: {e}")
+            
+            # Method 2: Try local service account file
+            if not creds and os.path.exists(service_account_path):
+                try:
+                    creds = service_account.Credentials.from_service_account_file(
+                        service_account_path, scopes=self.SCOPES)
+                    logger.info("Using service account authentication from local file")
+                except Exception as e:
+                    logger.error(f"Service account authentication from file failed: {e}")
+            
+            # Method 3: Try OAuth2 with existing token (for local development)
+            if not creds and os.path.exists(token_path):
+                try:
+                    creds = Credentials.from_authorized_user_file(token_path, self.SCOPES)
+                    if creds and creds.expired and creds.refresh_token:
+                        creds.refresh(Request())
+                    logger.info("Using OAuth2 authentication from saved token")
+                except Exception as e:
+                    logger.error(f"OAuth2 token authentication failed: {e}")
+            
+            # Method 4: Try OAuth2 interactive flow (local development only)
+            if not creds and os.path.exists(credentials_path):
+                try:
                     flow = InstalledAppFlow.from_client_secrets_file(
                         credentials_path, self.SCOPES)
                     creds = flow.run_local_server(port=0)
-                
-                # Save credentials for next run
-                with open(token_path, 'w') as token:
-                    token.write(creds.to_json())
+                    # Save credentials for next run
+                    with open(token_path, 'w') as token:
+                        token.write(creds.to_json())
+                    logger.info("Using OAuth2 interactive authentication")
+                except Exception as e:
+                    logger.error(f"OAuth2 interactive authentication failed: {e}")
+            
+            # Method 5: Try OAuth2 credentials from environment variable
+            if not creds:
+                oauth_creds_json = os.environ.get('GOOGLE_OAUTH_CREDENTIALS_JSON')
+                if oauth_creds_json:
+                    try:
+                        import tempfile
+                        with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as temp_file:
+                            temp_file.write(oauth_creds_json)
+                            temp_oauth_path = temp_file.name
+                        
+                        try:
+                            flow = InstalledAppFlow.from_client_secrets_file(
+                                temp_oauth_path, self.SCOPES)
+                            # Can't do interactive auth in production, so just log the auth URL
+                            logger.warning("Interactive OAuth2 authentication not available in production.")
+                            logger.warning("Consider using service account authentication instead.")
+                        finally:
+                            try:
+                                os.unlink(temp_oauth_path)
+                            except:
+                                pass
+                    except Exception as e:
+                        logger.error(f"OAuth2 environment variable authentication failed: {e}")
+            
+            if not creds:
+                logger.error("All authentication methods failed.")
+                logger.error("Available methods:")
+                logger.error("1. Set GOOGLE_SERVICE_ACCOUNT_JSON environment variable (recommended for production)")
+                logger.error("2. Place service_account.json in backend/config/")
+                logger.error("3. Place credentials.json in backend/config/ and run locally for OAuth2")
+                logger.error("4. Set GOOGLE_OAUTH_CREDENTIALS_JSON environment variable")
+                return False
             
             self.credentials = creds
             self.service = build('drive', 'v3', credentials=creds)
