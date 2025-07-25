@@ -569,8 +569,13 @@
     </div>
 
     <script>
-        // Configuration
-        let BACKEND_URL = 'http://localhost:5000';
+        // Configuration - Auto-detect environment
+        let BACKEND_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
+            ? 'http://localhost:5000'  // Local development
+            : 'https://your-backend.onrender.com';  // Production - UPDATE THIS when backend is deployed
+        
+        // Set the input field to show the detected backend URL
+        document.getElementById('backendUrl').value = BACKEND_URL;
         
         // Update backend URL when changed
         document.getElementById('backendUrl').addEventListener('change', function() {
