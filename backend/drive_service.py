@@ -95,17 +95,41 @@ class DriveService:
                 except Exception as e:
                     logger.error(f"Service account authentication from file failed: {e}")
             
-            # Method 3: Try OAuth2 with existing token (for local development)
+            # Method 3: Try OAuth2 token from environment variable (for production)
+            if not creds:
+                oauth_token_json = os.environ.get('GOOGLE_OAUTH_TOKEN_JSON')
+                if oauth_token_json:
+                    try:
+                        import tempfile
+                        # Create temporary token file from environment variable
+                        with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as temp_file:
+                            temp_file.write(oauth_token_json)
+                            temp_token_path = temp_file.name
+                        
+                        try:
+                            creds = Credentials.from_authorized_user_file(temp_token_path, self.SCOPES)
+                            if creds and creds.expired and creds.refresh_token:
+                                creds.refresh(Request())
+                            logger.info("Using OAuth2 authentication from environment variable token")
+                        finally:
+                            try:
+                                os.unlink(temp_token_path)
+                            except:
+                                pass
+                    except Exception as e:
+                        logger.error(f"OAuth2 token from environment variable failed: {e}")
+            
+            # Method 4: Try OAuth2 with existing token file (for local development)
             if not creds and os.path.exists(token_path):
                 try:
                     creds = Credentials.from_authorized_user_file(token_path, self.SCOPES)
                     if creds and creds.expired and creds.refresh_token:
                         creds.refresh(Request())
-                    logger.info("Using OAuth2 authentication from saved token")
+                    logger.info("Using OAuth2 authentication from saved token file")
                 except Exception as e:
-                    logger.error(f"OAuth2 token authentication failed: {e}")
+                    logger.error(f"OAuth2 token authentication from file failed: {e}")
             
-            # Method 4: Try OAuth2 interactive flow (local development only)
+            # Method 5: Try OAuth2 interactive flow (local development only)
             if not creds and os.path.exists(credentials_path):
                 try:
                     flow = InstalledAppFlow.from_client_secrets_file(
@@ -118,7 +142,7 @@ class DriveService:
                 except Exception as e:
                     logger.error(f"OAuth2 interactive authentication failed: {e}")
             
-            # Method 5: Try OAuth2 credentials from environment variable
+            # Method 6: Try OAuth2 credentials from environment variable
             if not creds:
                 oauth_creds_json = os.environ.get('GOOGLE_OAUTH_CREDENTIALS_JSON')
                 if oauth_creds_json:
