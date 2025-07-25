@@ -22,6 +22,24 @@ logger = logging.getLogger(__name__)
 # Initialize Google Drive service
 drive_service = DriveService()
 
+@app.route('/', methods=['GET'])
+def root():
+    """Root endpoint - API information"""
+    return jsonify({
+        'message': 'Invoice Generator Backend API',
+        'version': '1.0.0',
+        'status': 'running',
+        'endpoints': {
+            'health': '/api/health',
+            'upload': '/api/upload-to-drive',
+            'save_invoice': '/api/save-invoice',
+            'configure_drive': '/api/configure-drive',
+            'get_folders': '/api/get-drive-folders',
+            'current_user': '/api/current-user'
+        },
+        'docs': 'Access individual endpoints for API functionality'
+    })
+
 @app.route('/api/health', methods=['GET'])
 def health_check():
     """Health check endpoint"""
