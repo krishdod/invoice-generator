@@ -9,7 +9,7 @@ import os
 import json
 from datetime import datetime
 import logging
-from drive_service import DriveService
+from backend.drive_service import DriveService
 
 # Setup Flask app
 app = Flask(__name__)
@@ -190,7 +190,12 @@ def configure_drive():
             'updated_at': datetime.now().isoformat()
         }
         
-        with open('backend/config/drive_config.json', 'w') as f:
+        # Use relative path from backend directory
+        config_dir = os.path.join('backend', 'config')
+        os.makedirs(config_dir, exist_ok=True)
+        config_path = os.path.join(config_dir, 'drive_config.json')
+        
+        with open(config_path, 'w') as f:
             json.dump(config, f, indent=2)
         
         return jsonify({

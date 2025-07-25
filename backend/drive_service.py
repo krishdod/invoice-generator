@@ -28,7 +28,9 @@ class DriveService:
     
     def load_config(self):
         """Load configuration settings"""
-        config_path = 'backend/config/drive_config.json'
+        # Get the directory where this module is located
+        module_dir = os.path.dirname(os.path.abspath(__file__))
+        config_path = os.path.join(module_dir, 'config', 'drive_config.json')
         default_config = {
             'folder_id': '',
             'auto_upload': True,
@@ -41,7 +43,8 @@ class DriveService:
                     return json.load(f)
             else:
                 # Create default config
-                os.makedirs('backend/config', exist_ok=True)
+                config_dir = os.path.join(module_dir, 'config')
+                os.makedirs(config_dir, exist_ok=True)
                 with open(config_path, 'w') as f:
                     json.dump(default_config, f, indent=2)
                 return default_config
@@ -53,8 +56,10 @@ class DriveService:
         """Authenticate with Google Drive API"""
         try:
             creds = None
-            token_path = 'backend/config/token.json'
-            credentials_path = 'backend/config/credentials.json'
+            # Get the directory where this module is located
+            module_dir = os.path.dirname(os.path.abspath(__file__))
+            token_path = os.path.join(module_dir, 'config', 'token.json')
+            credentials_path = os.path.join(module_dir, 'config', 'credentials.json')
             
             # Load existing token
             if os.path.exists(token_path):
@@ -229,7 +234,11 @@ class DriveService:
         try:
             self.config.update(new_config)
             
-            with open('backend/config/drive_config.json', 'w') as f:
+            # Get the directory where this module is located
+            module_dir = os.path.dirname(os.path.abspath(__file__))
+            config_path = os.path.join(module_dir, 'config', 'drive_config.json')
+            
+            with open(config_path, 'w') as f:
                 json.dump(self.config, f, indent=2)
             
             logger.info("Configuration updated")
