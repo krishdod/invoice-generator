@@ -57,3 +57,9 @@ node_modules/
 .env
 .env.local
 .env.production
+.vercel
+node_modules/
+.env
+.vscode/
+.DS_Store
+*.log

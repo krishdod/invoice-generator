@@ -1,7 +1,13 @@
 {
-  "name": "jai-chammunda-invoice-generator",
+  "name": "jai-chamunda-invoice-generator",
   "version": 2,
   "public": true,
   "cleanUrls": true,
-  "trailingSlash": false
+  "trailingSlash": false,
+  "rewrites": [
+    {
+      "source": "/",
+      "destination": "/frontend/Invoice_App.html"
+    } 
+  ]
 }

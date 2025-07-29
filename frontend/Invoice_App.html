@@ -1697,10 +1697,16 @@ body {
             });
 
             // Add empty rows to fill table
+            let itemCount = 0;
+            if (isMobileDevice()) {
+                itemCount = document.querySelectorAll('.mobile-item-row').length;
+            } else {
+                itemCount = document.querySelectorAll('#itemsTableBody tr').length;
+            }
             for (let i = srNo; i <= 6; i++) {
                 itemsHTML += `
                     <tr>
-                        <td>${i <= rows.length ? i : ''}</td>
+                        <td>${i <= itemCount ? i : ''}</td>
                         <td class="description"></td>
                         <td></td>
                         <td></td>
@@ -1871,132 +1877,94 @@ body {
             document.getElementById('invoicePreview').scrollIntoView({ behavior: 'smooth' });
         }
 
-        function downloadPDF() {
-            // Validate invoice data before PDF generation
-            if (!validateInvoiceData()) {
-                return;
-            }
+        /**  Utility: pause for N ms  */
+        const wait = ms => new Promise(r => setTimeout(r, ms));
 
-            const { jsPDF } = window.jspdf;
-            const element = document.getElementById('invoiceContent');
+        /** 1️⃣   Called by the blue "Download PDF" button */
+        async function downloadPDF() {
+          if (!validateInvoiceData()) return;               // bail early if form bad
 
-            // Check if invoice content exists and has dimensions
-            if (!element || element.offsetHeight === 0 || element.offsetWidth === 0) {
-                // Generate invoice content if it doesn't exist
-                showNotification('🔄 Generating invoice content for PDF...', 'info');
-                generateInvoiceContent();
+          // Make sure invoice HTML exists
+          const preview = document.getElementById('invoicePreview');
+          if (preview.style.display === 'none') generateInvoice();
 
-                // Wait a moment for content to be generated
-                setTimeout(() => {
-                    processPDFGeneration();
-                }, 100);
-                return;
-            }
+          // ⏳ give the browser time to actually paint the preview
+          await wait(20);           // one frame (≈16 ms) is usually enough
 
-            processPDFGeneration();
+          // Retry up to 5 × if the element is still not laid out
+          const el = document.getElementById('invoiceContent');
+          let tries = 0;
+          while ((el.offsetWidth === 0 || el.offsetHeight === 0) && tries < 5) {
+            await wait(50);
+            tries++;
+          }
+
+          if (el.offsetWidth === 0 || el.offsetHeight === 0) {
+            showNotification('❌ Could not render invoice – please try again.', 'error');
+            return;
+          }
+
+          processPDFGeneration(el); // 🚀 do the heavy work
         }
 
-        function processPDFGeneration() {
-            const { jsPDF } = window.jspdf;
-            const element = document.getElementById('invoiceContent');
+        /** 2️⃣   Snapshot the element → PNG → fit on A4 → save */
+        function processPDFGeneration(element) {
+          showNotification('🔄 Generating PDF…', 'info');
 
-            // Show PDF generation progress
-            showNotification('🔄 Generating high-quality PDF...', 'info');
+          const { jsPDF } = window.jspdf;
 
-            html2canvas(element, {
-                scale: 2, // Higher scale for better quality
-                useCORS: true,
-                allowTaint: true,
-                logging: false,
-                backgroundColor: '#ffffff',
-            }).then(canvas => {
-                try {
-                    const imgData = canvas.toDataURL('image/png', 1.0); // Maximum quality
-                    const pdf = new jsPDF('p', 'mm', 'a4');
+          html2canvas(element, {
+            scale: window.devicePixelRatio || 2,
+            useCORS: true,
+            backgroundColor: '#ffffff'
+          }).then(canvas => {
+            const pdf   = new jsPDF('p', 'mm', 'a4');
+            const pW    = pdf.internal.pageSize.getWidth();       // 210
+            const pH    = pdf.internal.pageSize.getHeight();      // 297
+            let  imgW   = pW;
+            let  imgH   = (canvas.height * imgW) / canvas.width;
 
-                    const imgWidth = 210; // A4 width in mm
-                    const imgHeight = (canvas.height * imgWidth) / canvas.width;
+            // Second pass if still too tall
+            if (imgH > pH) {
+              const scale = pH / imgH;
+              imgW = imgW * scale;
+              imgH = pH;
+            }
 
-                    if (imgHeight > 297) { // A4 height in mm
-                        const scaleWidth = (canvas.width * 297) / canvas.height;
-                        pdf.addImage(imgData, 'PNG', (imgWidth - scaleWidth) / 2, 0, scaleWidth, 297);
-                    } else {
-                        pdf.addImage(imgData, 'PNG', 0, (297 - imgHeight) / 2, imgWidth, imgHeight);
-                    }
+            const marginX = (pW - imgW) / 2;   // >= 0 by construction
+            const marginY = (pH - imgH) / 2;
 
-                    const filename = generateFilename();
-                    const pdfBlob = pdf.output('blob');
+            pdf.addImage(
+              canvas.toDataURL('image/png', 1.0),
+              'PNG',
+              marginX,
+              marginY,
+              imgW,
+              imgH
+            );
 
-                    handleDownload(pdfBlob, filename);
-                    autoIncrementInvoiceNumber();
-                    showNotification(`✅ Invoice saved!`, 'success');
-                } catch (error) {
-                    console.error('PDF generation error:', error);
-                    showNotification('❌ PDF generation failed. Please try again.', 'error');
-                }
-            }).catch(error => {
-                console.error('Canvas generation error:', error);
-                showNotification('❌ Canvas generation failed. Please try again.', 'error');
-            });
+            pdf.save(generateFilename());
+            autoIncrementInvoiceNumber();
+            showNotification('✅ Invoice downloaded!', 'success');
+          }).catch(err => {
+            console.error('PDF generation error:', err);
+            showNotification('❌ PDF generation failed – see console.', 'error');
+          });
         }
 
         function handleDownload(pdfBlob, filename) {
             if (isMobileDevice()) {
                 try {
                     const blobUrl = URL.createObjectURL(pdfBlob);
-                    
-                    // First attempt: Try direct download for modern mobile browsers
-                    const downloadLink = document.createElement('a');
-                    downloadLink.href = blobUrl;
-                    downloadLink.download = filename;
-                    downloadLink.style.display = 'none';
-                    document.body.appendChild(downloadLink);
-                    
-                    // Try the download - but don't rely on it working
-                    downloadLink.click();
-                    
-                    // Wait a moment, then check if download worked by asking user
+                    // Always open in a new tab for mobile
+                    window.open(blobUrl, '_blank', 'noopener,noreferrer');
+                    showNotification('📱 PDF opened in new tab! Use your browser\'s menu to save or share the PDF.', 'info');
                     setTimeout(() => {
-                        // Clean up the download link
-                        if (downloadLink.parentNode) {
-                            document.body.removeChild(downloadLink);
-                        }
-                        
-                        // Show user-friendly prompt for mobile
-                        const userChoice = confirm(
-                            "📱 Mobile Download Notice:\n\n" +
-                            "If the PDF didn't download automatically, " +
-                            "we can open it in a new tab for you to view and save.\n\n" +
-                            "Click 'OK' to view the PDF, or 'Cancel' if it downloaded successfully."
-                        );
-                        
-                        if (userChoice) {
-                            // Open in new tab with mobile-friendly options
-                            const pdfWindow = window.open(blobUrl, '_blank', 'noopener,noreferrer');
-                            if (pdfWindow) {
-                                pdfWindow.document.title = filename;
-                                showNotification('📱 PDF opened in new tab! Use browser menu to save.', 'info');
-                            } else {
-                                // Popup blocked - show alternative
-                                showNotification('❌ Popup blocked. Trying alternative method...', 'warning');
-                                // Try to navigate directly
-                                window.location.href = blobUrl;
-                            }
-                        } else {
-                            showNotification('✅ Great! PDF downloaded successfully.', 'success');
-                        }
-                        
-                        // Clean up blob URL after longer delay
-                        setTimeout(() => {
-                            URL.revokeObjectURL(blobUrl);
-                        }, 10000); // 10 seconds to ensure user has time to save
-                        
-                    }, 1000); // 1 second delay to let download attempt complete
-                    
+                        URL.revokeObjectURL(blobUrl);
+                    }, 10000); // Clean up after 10 seconds
                 } catch (mobileError) {
                     console.error('Mobile download error:', mobileError);
-                    showNotification('❌ Mobile download failed. Trying alternative method...', 'error');
-                    fallbackPdfSave(pdfBlob, filename);
+                    showNotification('❌ Mobile download failed. Please try again.', 'error');
                 }
             } else {
                 // Desktop download - use standard method
@@ -2008,14 +1976,12 @@ body {
                     downloadLink.style.display = 'none';
                     document.body.appendChild(downloadLink);
                     downloadLink.click();
-                    
                     setTimeout(() => {
                         if (downloadLink.parentNode) {
                             document.body.removeChild(downloadLink);
                         }
                         URL.revokeObjectURL(blobUrl);
                     }, 1000);
-                    
                     showNotification('💻 PDF downloaded successfully!', 'success');
                 } catch (desktopError) {
                     console.error('Desktop download error:', desktopError);
@@ -2265,10 +2231,16 @@ body {
             }
 
             // Add empty rows to fill table
+            let itemCount = 0;
+            if (isMobileDevice()) {
+                itemCount = document.querySelectorAll('.mobile-item-row').length;
+            } else {
+                itemCount = document.querySelectorAll('#itemsTableBody tr').length;
+            }
             for (let i = srNo; i <= 6; i++) {
                 itemsHTML += `
                     <tr>
-                        <td>${i <= rows.length ? i : ''}</td>
+                        <td>${i <= itemCount ? i : ''}</td>
                         <td class="description"></td>
                         <td></td>
                         <td></td>
@@ -2967,10 +2939,16 @@ body {
             }
             
             // Add empty rows to fill table
+            let itemCount = 0;
+            if (isMobileDevice()) {
+                itemCount = document.querySelectorAll('.mobile-item-row').length;
+            } else {
+                itemCount = document.querySelectorAll('#itemsTableBody tr').length;
+            }
             for (let i = srNo; i <= 6; i++) {
                 itemsHTML += `
                     <tr>
-                        <td>${i <= srNo - 1 ? '' : ''}</td>
+                        <td>${i <= itemCount ? i : ''}</td>
                         <td class="description"></td>
                         <td></td>
                         <td></td>
