@@ -162,102 +162,107 @@
 
         .invoice-header {
             text-align: center;
-            border: 2px solid #000;
-            margin-bottom: 10px;
+            margin-bottom: 20px;
         }
 
         .invoice-title {
-            background: #000;
-            color: white;
-            padding: 10px;
+            background: #f2f2f2;
+            color: #333;
+            padding: 15px;
             font-weight: bold;
-            font-size: 16px;
+            font-size: 24px;
+            border-bottom: 2px solid #ddd;
         }
 
         .company-name {
             font-weight: bold;
-            font-size: 18px;
-            padding: 15px;
+            font-size: 22px;
+            padding: 20px 0 10px;
             margin: 0;
+            color: #333;
         }
 
         .company-address {
             padding: 0 15px 15px 15px;
             font-size: 14px;
+            color: #666;
         }
 
         .invoice-details {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            border: 2px solid #000;
-            margin-bottom: 10px;
+            margin-bottom: 20px;
+            background: #f9f9f9;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            overflow: hidden;
         }
 
         .left-details, .right-details {
-            padding: 15px;
-            border-right: 1px solid #000;
+            padding: 20px;
         }
 
-        .right-details {
-            border-right: none;
-        }
 
         .detail-row {
             display: flex;
             justify-content: space-between;
-            margin-bottom: 8px;
+            margin-bottom: 10px;
             font-size: 14px;
+            color: #555;
         }
 
         .detail-label {
-            font-weight: bold;
+            font-weight: 500;
+            color: #333;
         }
 
         .buyer-details {
-            border: 2px solid #000;
-            margin-bottom: 10px;
+            border: 1px solid #ddd;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            overflow: hidden;
         }
 
         .buyer-header {
-            background: #f0f0f0;
-            padding: 10px;
+            background: #f2f2f2;
+            padding: 12px 15px;
             font-weight: bold;
-            border-bottom: 1px solid #000;
+            color: #333;
+            border-bottom: 1px solid #ddd;
         }
 
         .buyer-content {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            padding: 15px;
+            padding: 20px;
         }
 
         .buyer-left {
-            border-right: 1px solid #000;
-            padding-right: 15px;
+            padding-right: 20px;
         }
 
         .buyer-right {
-            padding-left: 15px;
+            padding-left: 20px;
         }
 
         .items-table-invoice {
             width: 100%;
-            border: 2px solid #000;
             border-collapse: collapse;
-            margin-bottom: 10px;
+            margin-bottom: 20px;
         }
 
         .items-table-invoice th,
         .items-table-invoice td {
-            border: 1px solid #000;
-            padding: 10px 5px;
+            border: 1px solid #ddd;
+            padding: 12px 8px;
             text-align: center;
-            font-size: 12px;
+            font-size: 14px;
         }
 
         .items-table-invoice th {
-            background: #f0f0f0;
-            font-weight: bold;
+            background: #f2f2f2;
+            font-weight: 500;
+            color: #333;
         }
 
         .items-table-invoice .description {
@@ -265,81 +270,88 @@
         }
 
         .totals-section {
-            border: 2px solid #000;
-            margin-bottom: 10px;
+            border: 1px solid #ddd;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            overflow: hidden;
         }
 
         .totals-grid {
             display: grid;
-            grid-template-columns: 2fr 1fr;
+            grid-template-columns: 2fr 1.2fr;
         }
 
         .amount-words {
             padding: 20px;
-            border-right: 1px solid #000;
-            font-weight: bold;
+            font-weight: 500;
+            color: #333;
+            border-right: 1px solid #ddd;
         }
 
         .totals-right {
-            padding: 15px;
+            padding: 20px;
         }
 
         .total-row {
             display: flex;
             justify-content: space-between;
-            margin-bottom: 8px;
-            padding: 3px 0;
+            margin-bottom: 12px;
+            font-size: 14px;
+            color: #555;
         }
 
         .total-row.final {
-            border-top: 1px solid #000;
-            padding-top: 8px;
+            border-top: 2px solid #333;
+            padding-top: 12px;
             font-weight: bold;
+            font-size: 16px;
+            color: #333;
         }
 
         .certificate {
-            border: 2px solid #000;
+            border: 1px solid #ddd;
             padding: 20px;
-            margin-bottom: 10px;
-            font-size: 14px;
+            margin-bottom: 20px;
+            font-size: 12px;
+            color: #666;
+            border-radius: 8px;
         }
 
         .signature-section {
-            border: 2px solid #000;
-            padding: 20px;
+            padding-top: 40px;
             text-align: right;
-            min-height: 80px;
-            display: flex;
-            align-items: flex-end;
-            justify-content: flex-end;
         }
 
         .company-details {
-            border: 2px solid #000;
-            margin-bottom: 10px;
-            display: grid;
-            grid-template-columns: 1fr 1fr;
+            margin-bottom: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            overflow: hidden;
         }
 
         .left-company-details {
-            padding: 15px;
-            border-right: 1px solid #000;
+            padding: 20px;
+            border-right: 1px solid #ddd;
         }
 
         .right-company-details {
-            padding: 15px;
+            padding: 20px;
         }
 
         .bank-details {
-            font-size: 12px;
-            line-height: 1.4;
+            font-size: 13px;
+            line-height: 1.6;
+            color: #555;
         }
 
         .footer {
             text-align: center;
             font-style: italic;
-            padding: 15px;
-            font-size: 11px;
+            padding-top: 20px;
+            font-size: 12px;
+            color: #888;
+            border-top: 1px solid #ddd;
+            margin-top: 20px;
         }
 
         .notification {
@@ -1134,36 +1146,6 @@
                     </div>
                 </div>
 
-                <div class="invoice-details">
-                    <div class="left-details">
-                        <div class="detail-row">
-                            <span class="detail-label">Invoice No:</span>
-                            <span>${invoiceNo}</span>
-                        </div>
-                        <div class="detail-row">
-                            <span class="detail-label">Date:</span>
-                            <span>${formattedDate}</span>
-                        </div>
-                        <div class="detail-row">
-                            <span class="detail-label">State Code:</span>
-                            <span>${stateCode}</span>
-                        </div>
-                    </div>
-                    <div class="right-details">
-                        <div class="detail-row">
-                            <span class="detail-label">Reverse Charge:</span>
-                            <span>No</span>
-                        </div>
-                        <div class="detail-row">
-                            <span class="detail-label">Transport Mode:</span>
-                            <span>Road</span>
-                        </div>
-                        <div class="detail-row">
-                            <span class="detail-label">Vehicle No:</span>
-                            <span>-</span>
-                        </div>
-                    </div>
-                </div>
 
                 <div class="buyer-details">
                     <div class="buyer-header">BUYER DETAILS</div>
@@ -1175,6 +1157,9 @@
                             ${buyerAddress}
                         </div>
                         <div class="buyer-right">
+                            <strong>Invoice No:</strong> ${invoiceNo}<br>
+                            <strong>Date:</strong> ${formattedDate}<br>
+                            <strong>State Code:</strong> ${stateCode}<br>
                             <strong>Order No:</strong> ${buyerOrderNo}<br>
                             <strong>GSTIN:</strong> ${buyerGstin}<br>
                         </div>
