@@ -156,7 +156,7 @@
             font-family: Arial, sans-serif;
             font-size: 12px;
             line-height: 1.4;
-            padding: 12mm;
+            padding: 10mm;
             box-sizing: border-box;
         }
 
@@ -1254,7 +1254,7 @@
                 </table>
 
                 <div class="totals-wrap">
-                    <div class="box" style="min-height:80px"></div>
+                    <div class="box" style="min-height:120px"></div>
                     <div class="totals-box">
                         <div class="totals-line"><span>Total:</span><span>₹${invoiceData.subtotal.toFixed(2)}</span></div>
                         <div class="totals-line"><span>Add CGST @ 9%</span><span>₹${invoiceData.cgst.toFixed(2)}</span></div>
@@ -1320,7 +1320,7 @@
                 const pageHeight = pdf.internal.pageSize.getHeight();
 
                 // Fit image to minimize bottom whitespace: prefer height fit, keep margins, align to top
-                const margin = 6; // mm
+                const margin = 4; // mm
                 const maxW = pageWidth - margin * 2;
                 const maxH = pageHeight - margin * 2;
 
