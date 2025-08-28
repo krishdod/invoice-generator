@@ -156,7 +156,7 @@
             font-family: Arial, sans-serif;
             font-size: 12px;
             line-height: 1.4;
-            padding: 15mm;
+            padding: 12mm;
             box-sizing: border-box;
         }
 
@@ -165,14 +165,31 @@
             margin-bottom: 20px;
         }
 
-        .invoice-title {
-            background: #f2f2f2;
-            color: #333;
-            padding: 15px;
-            font-weight: bold;
-            font-size: 24px;
-            border-bottom: 2px solid #ddd;
-        }
+        .invoice-title { font-weight: bold; font-size: 20px; text-align: center; letter-spacing: 1px; }
+
+        .company-title { font-size: 24px; font-weight: 800; text-align: center; margin-top: 6px; }
+        .company-subtitle { text-align: center; font-size: 12px; margin-top: 4px; }
+
+        .box { border: 1.5px solid #000; border-radius: 4px; overflow: hidden; }
+        .row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+        .row-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
+        .kv-table { width: 100%; border-collapse: collapse; }
+        .kv-table td { border: 1px solid #000; padding: 6px 8px; }
+        .kv-table td.label { width: 40%; font-weight: 600; background: #f7f7f7; }
+        .muted { color: #000; font-size: 12px; }
+        .tight { margin-top: 8px; }
+
+        .items { width: 100%; border-collapse: collapse; margin-top: 8px; }
+        .items th, .items td { border: 1.5px solid #000; padding: 6px 6px; text-align: center; }
+        .items th { background: #f7f7f7; font-weight: 700; }
+
+        .totals-wrap { display: grid; grid-template-columns: 2fr 1fr; gap: 8px; margin-top: 8px; }
+        .totals-box { border: 1.5px solid #000; padding: 8px; }
+        .totals-line { display: flex; justify-content: space-between; margin: 4px 0; }
+        .totals-final { border-top: 1.5px solid #000; padding-top: 6px; font-weight: 700; }
+
+        .signature-row { display: flex; justify-content: flex-end; margin-top: 8px; }
+        .signature-box { border: 1.5px solid #000; padding: 10px; text-align: center; width: 220px; }
 
         .company-name {
             font-weight: bold;
@@ -1109,128 +1126,163 @@
                 });
             }
 
-            // Generate complete invoice HTML
+            // Generate complete invoice HTML (matches provided layout)
             const invoiceHTML = `
                 <div class="invoice-header">
                     <div class="invoice-title">TAX INVOICE</div>
-                    <div class="company-name">JAI CHAMMUNDA FABRICATION</div>
-                    <div class="company-address">
-                        D/4, OM SOCIETY, NR. BHARAT PARTY PLOT, RABARI COLONY,<br>
-                        AMRAIWADI, AHMEDABAD - 380026
+                    <div class="company-title">JAI CHAMMUNDA FABRICATION</div>
+                    <div class="company-subtitle">D/4, Om Society, NR. Bharat Party Plot, Rabari Colony,<br>Amraiwadi, Ahmedabad, Gujarat - 380026</div>
+                    </div>
+
+                <div class="row tight">
+                    <div class="box">
+                        <table class="kv-table">
+                            <tr>
+                                <td class="label">STATE Code</td>
+                                <td>24</td>
+                            </tr>
+                        </table>
+                    </div>
+                    <div class="box">
+                        <table class="kv-table">
+                            <tr>
+                                <td class="label">GSTIN</td>
+                                <td>24AYCPD6656K1ZC</td>
+                            </tr>
+                        </table>
                     </div>
                 </div>
 
-                <div class="company-details">
-                    <div class="left-company-details">
-                        <div class="detail-row">
-                            <span class="detail-label">STATE Code:</span>
-                            <span>24</span>
-                        </div>
-                        <div class="detail-row">
-                            <span class="detail-label">GSTIN:</span>
-                            <span>24AYCPD6656K1ZC</span>
-                        </div>
-                        <div class="detail-row">
-                            <span class="detail-label">PAN No.:</span>
-                            <span>AYCPD6656K</span>
-                        </div>
-                    </div>
-                    <div class="right-company-details">
-                        <div class="bank-details">
-                            <strong>Bank Details -</strong><br>
-                            NIDHI CO-OP BANK LTD. C.T.M. Amraiwadi, Ahmedabad - 380026<br>
-                            ACCOUNT NO. - 002111055000021111<br>
-                            CONTACT NO. - +91 8128309214<br><br>
-                            <strong>ONLINE PAYMENT AVAILABLE</strong>
-                        </div>
+                <div class="row tight">
+                    <div class="box" style="grid-column: 1 / -1;">
+                        <table class="kv-table">
+                            <tr>
+                                <td class="label">Invoice no.:</td>
+                                <td>${invoiceNo}</td>
+                            </tr>
+                            <tr>
+                                <td class="label">Date</td>
+                                <td>${formattedDate}</td>
+                            </tr>
+                        </table>
                     </div>
                 </div>
 
-
-                <div class="buyer-details">
-                    <div class="buyer-header">BUYER DETAILS</div>
-                    <div class="buyer-content">
-                        <div class="buyer-left">
-                            <strong>Buyer Name:</strong><br>
-                            ${buyerName}<br><br>
-                            <strong>Address:</strong><br>
-                            ${buyerAddress}
-                        </div>
-                        <div class="buyer-right">
-                            <strong>Invoice No:</strong> ${invoiceNo}<br>
-                            <strong>Date:</strong> ${formattedDate}<br>
-                            <strong>State Code:</strong> ${stateCode}<br>
-                            <strong>Order No:</strong> ${buyerOrderNo}<br>
-                            <strong>GSTIN:</strong> ${buyerGstin}<br>
-                        </div>
+                <div class="row tight">
+                    <div class="box">
+                        <table class="kv-table">
+                            <tr>
+                                <td class="label">PAN No.</td>
+                                <td>AYCPD6656K</td>
+                            </tr>
+                        </table>
+                    </div>
+                    <div class="box">
+                        <table class="kv-table">
+                            <tr>
+                                <td class="label">Buyer's order no.</td>
+                                <td>${buyerOrderNo || '-'}</td>
+                            </tr>
+                            <tr>
+                                <td class="label">Destination</td>
+                                <td>-</td>
+                            </tr>
+                        </table>
                     </div>
                 </div>
 
-                <table class="items-table-invoice">
+                <div class="row tight">
+                    <div class="box">
+                        <table class="kv-table">
+                            <tr>
+                                <td class="label">Buyer Details:</td>
+                                <td>
+                                    <div><strong>${buyerName}</strong></div>
+                                    <div class="muted">${buyerAddress}</div>
+                                </td>
+                            </tr>
+                        </table>
+                        </div>
+                    <div class="box">
+                        <table class="kv-table">
+                            <tr>
+                                <td class="label">Bank Details:</td>
+                                <td>
+                                    NIDHI CO-OP. BANK LTD. C.T.M, Amraiwadi, Ahmedabad-26.<br>
+                                    ACCOUNT NO.: 002111110008319 IFSC CODE: ICIC000NIDHI<br>
+                                    CONTACT NO.: +918128309214<br>
+                                    ONLINE PAYMENT AVAILABLE
+                                </td>
+                            </tr>
+                        </table>
+                        </div>
+                </div>
+
+                <div class="row tight">
+                    <div class="box">
+                        <table class="kv-table">
+                            <tr>
+                                <td class="label">State Code:</td>
+                                <td>24</td>
+                            </tr>
+                        </table>
+                    </div>
+                    <div class="box">
+                        <table class="kv-table">
+                            <tr>
+                                <td class="label">GSTIN/UID:</td>
+                                <td>${buyerGstin || '-'}</td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+
+                <table class="items">
                     <thead>
                         <tr>
-                            <th>Sr.</th>
-                            <th>Description</th>
-                            <th>Size</th>
-                            <th>HSN/SAC</th>
-                            <th>Qty</th>
+                            <th>SR.NO</th>
+                            <th>Description of Goods</th>
+                            <th>Size (MM)</th>
+                            <th>HSN/SAC Code</th>
+                            <th>Quantity</th>
                             <th>Rate</th>
                             <th>Unit</th>
                             <th>Amount</th>
                         </tr>
                     </thead>
-                    <tbody>
-                        ${itemsHTML}
-                    </tbody>
+                    <tbody>${itemsHTML}</tbody>
                 </table>
 
-                <div class="totals-section">
-                    <div class="totals-grid">
-                        <div class="amount-words">
-                            <strong>Amount in Words:</strong><br>
-                            ${numberToWords(invoiceData.total)}
-                        </div>
-                        <div class="totals-right">
-                            <div class="total-row">
-                                <span>Sub Total:</span>
-                                <span>₹${invoiceData.subtotal.toFixed(2)}</span>
-                            </div>
-                            <div class="total-row">
-                                <span>Freight:</span>
-                                <span>₹${invoiceData.freight.toFixed(2)}</span>
-                            </div>
-                            <div class="total-row">
-                                <span>CGST @ 9%:</span>
-                                <span>₹${invoiceData.cgst.toFixed(2)}</span>
-                            </div>
-                            <div class="total-row">
-                                <span>SGST @ 9%:</span>
-                                <span>₹${invoiceData.sgst.toFixed(2)}</span>
-                            </div>
-                            <div class="total-row final">
-                                <span>Total Amount:</span>
-                                <span>₹${invoiceData.total.toFixed(2)}</span>
-                            </div>
-                        </div>
+                <div class="totals-wrap">
+                    <div class="box" style="min-height:80px"></div>
+                    <div class="totals-box">
+                        <div class="totals-line"><span>Total:</span><span>₹${invoiceData.subtotal.toFixed(2)}</span></div>
+                        <div class="totals-line"><span>Add CGST @ 9%</span><span>₹${invoiceData.cgst.toFixed(2)}</span></div>
+                        <div class="totals-line"><span>Add SGST @ 9%</span><span>₹${invoiceData.sgst.toFixed(2)}</span></div>
+                        <div class="totals-line totals-final"><span>TOTAL:</span><span>₹${invoiceData.total.toFixed(2)}</span></div>
                     </div>
                 </div>
 
-                <div class="certificate">
-                    <strong>CERTIFICATE :-</strong><br><br>
-                    Certified that the particulars given above are correct and amount indicated represent the price charged and that is no additional consideration directly or indirectly from the buyer.<br>
-                    Interest @ 18% P.A. Will be Charged on Bills not paid within due date, as per MSMED Act 2006.
+                <div class="box" style="margin-top:8px; padding:8px;">
+                    <strong>Amount (In Words):</strong> - ${numberToWords(invoiceData.total)}
                 </div>
 
-                <div class="signature-section">
-                    <div>
-                        <div style="font-weight: bold; margin-bottom: 40px;">JAI CHAMMUNDA FABRICATION</div>
-                        <div>Authorised Signature</div>
+                <div class="box" style="margin-top:8px; padding:8px;">
+                    <strong>CERTIFICATE:-</strong><br>
+                    Certified that the JAI CHAMMUNDA FABRICATION, AHMEDABAD are registered manufacturers in this state.<br>
+                    Certified that Particulars given above are true and correct and amount indicated represent the price actually charged and there is no
+                    additional consideration directly or indirectly from the buyer.<br>
+                    Interest @18% P.A. Will be Charged on Bills not paid within due date, as per MSMED Act 2006.
+                </div>
+
+                <div class="signature-row">
+                    <div class="signature-box">
+                        <div style="font-weight:700;">JAI CHAMMUNDA FABRICATION</div>
+                        <div class="muted" style="margin-top:30px;">Authorised Signature</div>
                     </div>
                 </div>
 
-                <div class="footer">
-                    This is computer generated invoice.
-                </div>
+                <div class="footer">This is computer generated Invoice.</div>
             `;
 
             document.getElementById('invoiceContent').innerHTML = invoiceHTML;
@@ -1244,87 +1296,63 @@
             console.log('Invoice preview generated');
         }
 
-        // Download PDF
+        // Download PDF (exact preview capture)
         async function downloadPDF() {
             console.log('Starting PDF download...');
-            
             if (!validateInvoiceData()) {
                 return;
             }
-
             showNotification('Generating PDF...', 'info');
-
             try {
-                // Make sure preview is visible
-                const preview = document.getElementById('invoicePreview');
-                if (preview.style.display === 'none') {
-                    generateInvoice();
-                    // Wait for content to render
-                    await new Promise(resolve => setTimeout(resolve, 1000));
-                }
-
-                const element = document.getElementById('invoiceContent');
                 const { jsPDF } = window.jspdf;
+                const element = document.getElementById('invoiceContent');
 
-                // Generate canvas from HTML
+                // Ensure white background for canvas
                 const canvas = await html2canvas(element, {
-                    scale: 2,
+                    scale: 3,
                     useCORS: true,
-                    backgroundColor: '#ffffff',
-                    width: element.scrollWidth,
-                    height: element.scrollHeight
+                    backgroundColor: '#ffffff'
                 });
 
-                // Create PDF
+                const imgData = canvas.toDataURL('image/png');
                 const pdf = new jsPDF('p', 'mm', 'a4');
-                const pdfWidth = pdf.internal.pageSize.getWidth();
-                const pdfHeight = pdf.internal.pageSize.getHeight();
-                
-                let imgWidth = pdfWidth;
+                const pageWidth = pdf.internal.pageSize.getWidth();
+                const pageHeight = pdf.internal.pageSize.getHeight();
+
+                // Fit image to minimize bottom whitespace: prefer height fit, keep margins, align to top
+                const margin = 6; // mm
+                const maxW = pageWidth - margin * 2;
+                const maxH = pageHeight - margin * 2;
+
+                // Start by fitting to width
+                let imgWidth = maxW;
                 let imgHeight = (canvas.height * imgWidth) / canvas.width;
 
-                // Scale down if too tall
-                if (imgHeight > pdfHeight) {
-                    const scale = pdfHeight / imgHeight;
-                    imgWidth = imgWidth * scale;
-                    imgHeight = pdfHeight;
+                // If there is extra bottom space, try fitting to height without overflowing width
+                if (imgHeight < maxH) {
+                    let tryHeight = maxH;
+                    let tryWidth = (canvas.width * tryHeight) / canvas.height;
+                    if (tryWidth <= maxW) {
+                        imgHeight = tryHeight;
+                        imgWidth = tryWidth;
+                    }
                 }
 
-                // Center the image
-                const marginX = (pdfWidth - imgWidth) / 2;
-                const marginY = (pdfHeight - imgHeight) / 2;
+                const x = (pageWidth - imgWidth) / 2; // center horizontally
+                const y = margin; // align content to top to remove bottom gap
+                pdf.addImage(imgData, 'PNG', x, y, imgWidth, imgHeight, undefined, 'FAST');
 
-                // Add image to PDF
-                pdf.addImage(
-                    canvas.toDataURL('image/png', 1.0),
-                    'PNG',
-                    marginX,
-                    marginY,
-                    imgWidth,
-                    imgHeight
-                );
-
-                // Generate filename
-                const buyerName = document.getElementById('buyerName').value || 'Unknown';
+                // Filename as before
                 const invoiceNo = document.getElementById('invoiceNo').value || '1';
+                const buyerName = document.getElementById('buyerName').value || 'BUYER_NAME';
                 const cleanBuyerName = buyerName.replace(/[^\w\s]/gi, '').replace(/\s+/g, '_');
                 const filename = `${cleanBuyerName}_(Invoice_${invoiceNo}).pdf`;
 
-                // Handle download based on device type
                 if (isMobileDevice()) {
-                    // For mobile devices - open PDF in new tab
                     const blob = pdf.output('blob');
                     const url = URL.createObjectURL(blob);
                     const newWindow = window.open(url, '_blank');
-                    
-                    if (newWindow) {
-                        showNotification('📱 PDF opened in new tab! Use browser menu to save or share.', 'info');
-                        // Clean up the URL after 30 seconds
-                        setTimeout(() => {
-                            URL.revokeObjectURL(url);
-                        }, 30000);
-                    } else {
-                        // Fallback if popup blocked
+                    if (!newWindow) {
                         const link = document.createElement('a');
                         link.href = url;
                         link.download = filename;
@@ -1332,11 +1360,9 @@
                         document.body.appendChild(link);
                         link.click();
                         document.body.removeChild(link);
-                        URL.revokeObjectURL(url);
-                        showNotification('📱 PDF download started! Check your downloads folder.', 'success');
                     }
+                    showNotification('📱 PDF ready. Save from the new tab.', 'success');
                 } else {
-                    // For desktop - use normal save
                     pdf.save(filename);
                     showNotification('💻 PDF downloaded successfully!', 'success');
                 }
@@ -1346,7 +1372,6 @@
                 document.getElementById('invoiceNo').value = currentInvoiceNo + 1;
 
                 console.log('PDF download completed');
-
             } catch (error) {
                 console.error('PDF generation error:', error);
                 showNotification('Failed to generate PDF: ' + error.message, 'error');
