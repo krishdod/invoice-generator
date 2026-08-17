@@ -1,1849 +1,300 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>JC - Invoice Generator</title>
-    
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #1a1a2e, #16213e, #0f3460);
-            padding: 20px;
-            min-height: 100vh;
-            color: #e8eaf0;
-        }
-
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            background: rgba(52, 73, 94, 0.9);
-            border-radius: 12px;
-            padding: 30px;
-            box-shadow: 0 8px 32px rgba(0,0,0,0.3);
-        }
-
-        .header {
-            text-align: center;
-            margin-bottom: 30px;
-        }
-
-        .header h1 {
-            font-size: 2.5em;
-            color: #74b9ff;
-            margin-bottom: 10px;
-        }
-
-        .form-section {
-            background: rgba(44, 62, 80, 0.6);
-            padding: 25px;
-            border-radius: 10px;
-            margin-bottom: 20px;
-        }
-
-        .form-row {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 20px;
-            margin-bottom: 20px;
-        }
-
-        .form-group {
-            display: flex;
-            flex-direction: column;
-        }
-
-        .form-group label {
-            margin-bottom: 5px;
-            font-weight: bold;
-            color: #74b9ff;
-        }
-
-        .form-group input, .form-group select {
-            padding: 10px;
-            border: 2px solid rgba(255,255,255,0.2);
-            border-radius: 5px;
-            background: rgba(44, 62, 80, 0.8);
-            color: #FFFFFF;
-            font-size: 14px;
-        }
-
-        .form-group input:focus, .form-group select:focus {
-            border-color: #74b9ff;
-            outline: none;
-        }
-
-        .items-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin: 20px 0;
-            background: rgba(52, 73, 94, 0.9);
-            border-radius: 10px;
-            overflow: hidden;
-        }
-
-        .items-table th, .items-table td {
-            padding: 12px 8px;
-            border: 1px solid rgba(255,255,255,0.1);
-            text-align: center;
-            color: #ecf0f1;
-        }
-
-        .items-table th {
-            background: rgba(116, 185, 255, 0.2);
-            font-weight: bold;
-            color: #74b9ff;
-        }
-
-        .items-table input, .items-table select {
-            width: 100%;
-            padding: 8px;
-            border: none;
-            background: transparent;
-            color: #ecf0f1;
-            text-align: center;
-        }
-
-        .btn {
-            background: linear-gradient(135deg, #74b9ff, #0984e3);
-            color: white;
-            border: none;
-            padding: 12px 25px;
-            border-radius: 25px;
-            cursor: pointer;
-            font-size: 16px;
-            font-weight: bold;
-            margin: 10px 5px;
-            transition: all 0.3s ease;
-            box-shadow: 0 6px 20px rgba(116, 185, 255, 0.3);
-        }
-
-        .btn:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 8px 25px rgba(116, 185, 255, 0.5);
-        }
-
-        .btn-danger {
-            background: linear-gradient(135deg, #fd79a8, #e84393);
-            padding: 5px 10px;
-            font-size: 12px;
-        }
-
-        .btn-secondary {
-            background: linear-gradient(135deg, #636e72, #2d3436);
-            box-shadow: 0 6px 20px rgba(99, 110, 114, 0.3);
-        }
-
-        .btn-secondary:hover {
-            box-shadow: 0 8px 25px rgba(99, 110, 114, 0.5);
-        }
-
-        .customer-controls {
-            display: flex;
-            gap: 10px;
-            align-items: stretch;
-        }
-
-        .customer-controls select {
-            flex: 1;
-            min-width: 0;
-        }
-
-        .customer-controls .btn {
-            margin: 0;
-            white-space: nowrap;
-            padding: 10px 18px;
-            font-size: 14px;
-        }
-
-        .customer-select-group {
-            grid-column: 1 / -1;
-        }
-
-        .new-customer-actions {
-            display: none;
-            gap: 10px;
-            flex-wrap: wrap;
-            margin-top: 10px;
-        }
-
-        .new-customer-actions.visible {
-            display: flex;
-        }
-
-        @media (max-width: 768px) {
-            .customer-controls {
-                flex-direction: column;
-            }
-
-            .customer-controls .btn {
-                width: 100%;
-            }
-        }
-
-        .invoice-preview {
-            display: none;
-            margin-top: 30px;
-            padding: 20px;
-            background: white;
-            border-radius: 10px;
-            color: black;
-        }
-
-        .invoice {
-            width: 210mm;
-            min-height: 297mm;
-            margin: 0 auto;
-            background: #FFFFFF;
-            font-family: Arial, sans-serif;
-            font-size: 12px;
-            line-height: 1.4;
-            padding: 10mm;
-            box-sizing: border-box;
-        }
-
-        .invoice-header {
-            text-align: center;
-            margin-bottom: 20px;
-        }
-
-        .invoice-title { font-weight: bold; font-size: 20px; text-align: center; letter-spacing: 1px; }
-
-        .company-title { font-size: 24px; font-weight: 800; text-align: center; margin-top: 6px; }
-        .company-subtitle { text-align: center; font-size: 12px; margin-top: 4px; }
-
-        .box { border: 1.5px solid #000; border-radius: 4px; overflow: hidden; }
-        .row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-        .row-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
-        .kv-table { width: 100%; border-collapse: collapse; }
-        .kv-table td { border: 1px solid #000; padding: 6px 8px; }
-        .kv-table td.label { width: 40%; font-weight: 600; background: #f7f7f7; }
-        .muted { color: #000; font-size: 12px; }
-        .tight { margin-top: 8px; }
-
-        .items { width: 100%; border-collapse: collapse; margin-top: 8px; }
-        .items th, .items td { border: 1.5px solid #000; padding: 6px 6px; text-align: center; }
-        .items th { background: #f7f7f7; font-weight: 700; }
-
-        .totals-wrap { display: grid; grid-template-columns: 2fr 1fr; gap: 8px; margin-top: 8px; }
-        .totals-box { border: 1.5px solid #000; padding: 8px; }
-        .totals-line { display: flex; justify-content: space-between; margin: 4px 0; }
-        .totals-final { border-top: 1.5px solid #000; padding-top: 6px; font-weight: 700; }
-
-        .signature-row { display: flex; justify-content: flex-end; margin-top: 8px; }
-        .signature-box { border: 1.5px solid #000; padding: 10px; text-align: center; width: 220px; }
-
-        .company-name {
-            font-weight: bold;
-            font-size: 22px;
-            padding: 20px 0 10px;
-            margin: 0;
-            color: #333;
-        }
-
-        .company-address {
-            padding: 0 15px 15px 15px;
-            font-size: 14px;
-            color: #666;
-        }
-
-        .invoice-details {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            margin-bottom: 20px;
-            background: #f9f9f9;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            overflow: hidden;
-        }
-
-        .left-details, .right-details {
-            padding: 20px;
-        }
-
-
-        .detail-row {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 10px;
-            font-size: 14px;
-            color: #555;
-        }
-
-        .detail-label {
-            font-weight: 500;
-            color: #333;
-        }
-
-        .buyer-details {
-            border: 1px solid #ddd;
-            margin-bottom: 20px;
-            border-radius: 8px;
-            overflow: hidden;
-        }
-
-        .buyer-header {
-            background: #f2f2f2;
-            padding: 12px 15px;
-            font-weight: bold;
-            color: #333;
-            border-bottom: 1px solid #ddd;
-        }
-
-        .buyer-content {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            padding: 20px;
-        }
-
-        .buyer-left {
-            padding-right: 20px;
-        }
-
-        .buyer-right {
-            padding-left: 20px;
-        }
-
-        .items-table-invoice {
-            width: 100%;
-            border-collapse: collapse;
-            margin-bottom: 20px;
-        }
-
-        .items-table-invoice th,
-        .items-table-invoice td {
-            border: 1px solid #ddd;
-            padding: 12px 8px;
-            text-align: center;
-            font-size: 14px;
-        }
-
-        .items-table-invoice th {
-            background: #f2f2f2;
-            font-weight: 500;
-            color: #333;
-        }
-
-        .items-table-invoice .description {
-            text-align: left;
-        }
-
-        .totals-section {
-            border: 1px solid #ddd;
-            margin-bottom: 20px;
-            border-radius: 8px;
-            overflow: hidden;
-        }
-
-        .totals-grid {
-            display: grid;
-            grid-template-columns: 2fr 1.2fr;
-        }
-
-        .amount-words {
-            padding: 20px;
-            font-weight: 500;
-            color: #333;
-            border-right: 1px solid #ddd;
-        }
-
-        .totals-right {
-            padding: 20px;
-        }
-
-        .total-row {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 12px;
-            font-size: 14px;
-            color: #555;
-        }
-
-        .total-row.final {
-            border-top: 2px solid #333;
-            padding-top: 12px;
-            font-weight: bold;
-            font-size: 16px;
-            color: #333;
-        }
-
-        .certificate {
-            border: 1px solid #ddd;
-            padding: 20px;
-            margin-bottom: 20px;
-            font-size: 12px;
-            color: #666;
-            border-radius: 8px;
-        }
-
-        .signature-section {
-            padding-top: 40px;
-            text-align: right;
-        }
-
-        .company-details {
-            margin-bottom: 20px;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            overflow: hidden;
-        }
-
-        .left-company-details {
-            padding: 20px;
-            border-right: 1px solid #ddd;
-        }
-
-        .right-company-details {
-            padding: 20px;
-        }
-
-        .bank-details {
-            font-size: 13px;
-            line-height: 1.6;
-            color: #555;
-        }
-
-        .footer {
-            text-align: center;
-            font-style: italic;
-            padding-top: 20px;
-            font-size: 12px;
-            color: #888;
-            border-top: 1px solid #ddd;
-            margin-top: 20px;
-        }
-
-        .notification {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            padding: 15px 20px;
-            border-radius: 8px;
-            color: white;
-            font-weight: bold;
-            z-index: 10000;
-            max-width: 300px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-        }
-
-        .notification.success {
-            background: #4CAF50;
-        }
-
-        .notification.error {
-            background: #f44336;
-        }
-
-        .notification.info {
-            background: #2196F3;
-        }
-
-        /* Mobile Items Cards */
-        .mobile-items-container {
-            display: none;
-        }
-        
-        .mobile-item-card {
-            background: rgba(255,255,255,0.1);
-            border-radius: 12px;
-            padding: 20px;
-            margin-bottom: 20px;
-            border: 1px solid rgba(255,255,255,0.2);
-            backdrop-filter: blur(5px);
-        }
-        
-        .mobile-item-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 15px;
-        }
-        
-        .mobile-item-title {
-            color: #74b9ff;
-            font-weight: bold;
-            font-size: 16px;
-        }
-        
-        .mobile-remove-btn {
-            background: linear-gradient(135deg, #fd79a8, #e84393);
-            color: white;
-            border: none;
-            padding: 8px 16px;
-            border-radius: 20px;
-            cursor: pointer;
-            font-size: 12px;
-            font-weight: bold;
-        }
-        
-        .mobile-field-group {
-            margin-bottom: 15px;
-        }
-        
-        .mobile-field-group label {
-            display: block;
-            margin-bottom: 5px;
-            font-weight: bold;
-            color: #74b9ff;
-            font-size: 14px;
-        }
-        
-        .mobile-field-group input,
-        .mobile-field-group select {
-            width: 100%;
-            padding: 12px;
-            border: 2px solid rgba(255,255,255,0.3);
-            border-radius: 8px;
-            background: rgba(44, 62, 80, 0.8);
-            color: #ecf0f1;
-            font-size: 16px;
-            box-sizing: border-box;
-        }
-        
-        .mobile-field-group input:focus,
-        .mobile-field-group select:focus {
-            border-color: #74b9ff;
-            box-shadow: 0 0 10px rgba(116, 185, 255, 0.4);
-            outline: none;
-        }
-        
-        .mobile-field-row {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-        }
-
-        @media (max-width: 768px) {
-            .container {
-                padding: 15px;
-                margin: 10px;
-            }
-            
-            .form-row {
-                grid-template-columns: 1fr;
-                gap: 15px;
-            }
-            
-            .form-section {
-                padding: 20px 15px;
-            }
-            
-            .header h1 {
-                font-size: 1.8em;
-            }
-            
-            /* Hide desktop table on mobile */
-            .items-table {
-                display: none;
-            }
-            
-            /* Show mobile cards on mobile */
-            .mobile-items-container {
-                display: block;
-            }
-            
-            .btn {
-                width: 100%;
-                padding: 15px 20px;
-                font-size: 18px;
-                margin: 10px 0;
-                touch-action: manipulation;
-            }
-            
-            /* Fix invoice size for mobile PDF */
-            .invoice {
-                width: 210mm !important;
-                min-height: 297mm !important;
-                margin: 0 auto;
-                padding: 15mm;
-                box-sizing: border-box;
-                font-size: 11px;
-                transform-origin: top left;
-                overflow: hidden;
-            }
-            
-            .invoice-preview {
-                overflow-x: auto;
-                padding: 10px;
-            }
-            
-            /* Ensure invoice content fits in mobile view */
-            .invoice-header,
-            .invoice-details,
-            .buyer-details,
-            .items-table-invoice,
-            .totals-section,
-            .certificate,
-            .signature-section {
-                font-size: 10px;
-            }
-            
-            .items-table-invoice th,
-            .items-table-invoice td {
-                padding: 6px 3px;
-                font-size: 10px;
-            }
-        }
-
-        .customer-editor {
-            display: none;
-            margin-top: 16px;
-            padding: 18px;
-            border: 1px solid rgba(255,255,255,0.18);
-            border-radius: 10px;
-            background: rgba(20, 30, 48, 0.28);
-        }
-
-        .customer-editor.visible {
-            display: block;
-        }
-
-        .customer-editor h4 {
-            margin-bottom: 16px;
-            color: #74b9ff;
-        }
-
-        .customer-editor .new-customer-actions {
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-            margin-top: 4px;
-        }
-
-        @media (max-width: 768px) {
-            .customer-editor .new-customer-actions {
-                flex-direction: column;
-            }
-        }
-
-        /* Real/selectable PDF through the browser print engine */
-        @media print {
-            @page {
-                size: A4;
-                margin: 5mm;
-            }
-
-            html,
-            body {
-                margin: 0 !important;
-                padding: 0 !important;
-                background: #fff !important;
-            }
-
-            body * {
-                visibility: hidden !important;
-            }
-
-            #invoicePreview,
-            #invoicePreview * {
-                visibility: visible !important;
-            }
-
-            #invoicePreview {
-                display: block !important;
-                position: absolute !important;
-                left: 0 !important;
-                top: 0 !important;
-                width: 100% !important;
-                margin: 0 !important;
-                padding: 0 !important;
-                background: #fff !important;
-                border: 0 !important;
-                border-radius: 0 !important;
-                overflow: visible !important;
-            }
-
-            #invoiceContent {
-                width: 200mm !important;
-                min-height: 0 !important;
-                margin: 0 auto !important;
-                padding: 6mm !important;
-                box-shadow: none !important;
-                transform: none !important;
-                overflow: visible !important;
-                font-size: 11px !important;
-            }
-
-            .notification,
-            .btn {
-                display: none !important;
-            }
-        }
-    </style>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0f172a">
+  <meta name="description" content="Jai Chammunda Fabrication invoice generator">
+  <title>JCF Invoice Generator</title>
+  <link rel="stylesheet" href="/app.css">
+  <script src="/app.js" defer></script>
 </head>
 <body>
-    <div class="container">
-        <div class="header">
-            <h1>JAI CHAMMUNDA FABRICATION</h1>
-            <p>Professional Invoice Generator</p>
+  <a class="skip-link" href="#invoice-workspace">Skip to invoice form</a>
+
+  <header class="topbar">
+    <div class="topbar__inner">
+      <div class="brand" aria-label="Jai Chammunda Fabrication Invoice Generator">
+        <div class="brand__mark" aria-hidden="true">JC</div>
+        <div class="brand__copy">
+          <strong>Jai Chammunda Fabrication</strong>
+          <span>Invoice workspace</span>
         </div>
+      </div>
 
-        <div class="form-section">
-            <h3>Invoice Details</h3>
-            <div class="form-row">
-                <div class="form-group">
-                    <label>Invoice No:</label>
-                    <input type="text" id="invoiceNo" value="18">
-                </div>
-                <div class="form-group">
-                    <label>Invoice Date:</label>
-                    <input type="date" id="invoiceDate">
-                </div>
-                <div class="form-group">
-                    <label>State Code:</label>
-                    <input type="text" id="stateCode" value="24">
-                </div>
-            </div>
-
-            <h3>Buyer Details</h3>
-
-            <div class="form-row">
-                <div class="form-group">
-                    <label>Customer:</label>
-                    <div class="customer-controls">
-                        <select id="customerSelect" onchange="onCustomerSelect()">
-                            <option value="">Select saved customer</option>
-                        </select>
-
-                        <button
-                            type="button"
-                            class="btn btn-secondary"
-                            onclick="startNewCustomer()">
-                            + New Customer
-                        </button>
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label>Order No:</label>
-                    <input
-                        type="text"
-                        id="buyerOrderNo"
-                        placeholder="Enter order number">
-                </div>
-            </div>
-
-            <!-- Hidden during normal invoicing.
-                 Shown only while adding a new customer. -->
-            <div class="customer-editor" id="customerEditor">
-                <h4>Add New Customer</h4>
-
-                <div class="form-row">
-                    <div class="form-group">
-                        <label>Buyer Name:</label>
-                        <input
-                            type="text"
-                            id="buyerName"
-                            placeholder="Enter buyer name">
-                    </div>
-
-                    <div class="form-group">
-                        <label>Buyer Address:</label>
-                        <input
-                            type="text"
-                            id="buyerAddress"
-                            placeholder="Enter buyer address">
-                    </div>
-
-                    <div class="form-group">
-                        <label>Buyer GSTIN:</label>
-                        <input
-                            type="text"
-                            id="buyerGstin"
-                            placeholder="Enter GSTIN"
-                            maxlength="15">
-                    </div>
-
-                    <div class="form-group">
-                        <label>Buyer State Code:</label>
-                        <input
-                            type="text"
-                            id="buyerStateCode"
-                            value="24"
-                            maxlength="2"
-                            inputmode="numeric"
-                            placeholder="e.g. 24">
-                    </div>
-                </div>
-
-                <div class="new-customer-actions">
-                    <button
-                        type="button"
-                        class="btn"
-                        onclick="saveNewCustomer()">
-                        Save Customer
-                    </button>
-
-                    <button
-                        type="button"
-                        class="btn btn-secondary"
-                        onclick="cancelNewCustomer()">
-                        Cancel
-                    </button>
-                </div>
-            </div>
-        </div>
-
-        <div class="form-section">
-            <h3>Items & Services</h3>
-            <!-- Desktop Table View -->
-            <table class="items-table">
-                <thead>
-                    <tr>
-                        <th>Description</th>
-                        <th>Size</th>
-                        <th>HSN/SAC</th>
-                        <th>Quantity</th>
-                        <th>Rate</th>
-                        <th>Unit</th>
-                        <th>Amount</th>
-                        <th>Action</th>
-                    </tr>
-                </thead>
-                <tbody id="itemsTableBody">
-                    <tr>
-                        <td>
-                            <select onchange="updateItemDetails(this)">
-                                <option value="">Select Item</option>
-                                <option value="SINGLE STUD CHAPLETS">SINGLE STUD CHAPLETS</option>
-                                <option value="DOUBLE STUD CHAPLETS">DOUBLE STUD CHAPLETS</option>
-                                <option value="SINGLE STUD CHAPLETS (HEAVY STUD)">SINGLE STUD CHAPLETS (HEAVY STUD)</option>
-                                <option value="SINGLE STUD CHAPLETS (SMALL CIRCLE)">SINGLE STUD CHAPLETS (SMALL CIRCLE)</option>
-                            </select>
-                        </td>
-                        <td><input type="text" placeholder="Size"></td>
-                        <td><input type="text" value="7326" readonly></td>
-                        <td><input type="number" oninput="calculateRow(this)" placeholder="0"></td>
-                        <td><input type="number" step="0.01" oninput="calculateRow(this)" placeholder="0.00"></td>
-                        <td>
-                            <select>
-                                <option>PER</option>
-                                <option>KG</option>
-                                <option>PCS</option>
-                                <option>MTR</option>
-                            </select>
-                        </td>
-                        <td class="amount">0.00</td>
-                        <td><button class="btn btn-danger" onclick="removeRow(this)">×</button></td>
-                    </tr>
-                </tbody>
-            </table>
-
-            <!-- Mobile Vertical Cards View -->
-            <div class="mobile-items-container" id="mobileItemsContainer">
-                <div class="mobile-item-card" data-item-index="0">
-                    <div class="mobile-item-header">
-                        <span class="mobile-item-title">Item #1</span>
-                        <button class="mobile-remove-btn" onclick="removeMobileItem(this)" style="display: none;">Remove</button>
-                    </div>
-                    
-                    <div class="mobile-field-group">
-                        <label>Description:</label>
-                        <select class="mobile-description" onchange="updateMobileItemDetails(this)">
-                            <option value="">Select Item</option>
-                            <option value="SINGLE STUD CHAPLETS">SINGLE STUD CHAPLETS</option>
-                            <option value="DOUBLE STUD CHAPLETS">DOUBLE STUD CHAPLETS</option>
-                            <option value="SINGLE STUD CHAPLETS (HEAVY STUD)">SINGLE STUD CHAPLETS (HEAVY STUD)</option>
-                            <option value="SINGLE STUD CHAPLETS (SMALL CIRCLE)">SINGLE STUD CHAPLETS (SMALL CIRCLE)</option>
-                        </select>
-                    </div>
-                    
-                    <div class="mobile-field-group">
-                        <label>Size:</label>
-                        <input type="text" class="mobile-size" placeholder="Enter size">
-                    </div>
-                    
-                    <div class="mobile-field-group">
-                        <label>HSN/SAC Code:</label>
-                        <input type="text" class="mobile-hsn" value="7326" readonly style="background: rgba(255,255,255,0.1);">
-                    </div>
-                    
-                    <div class="mobile-field-row">
-                        <div class="mobile-field-group">
-                            <label>Quantity:</label>
-                            <input type="number" class="mobile-quantity" placeholder="0" oninput="calculateMobileRow(this)">
-                        </div>
-                        
-                        <div class="mobile-field-group">
-                            <label>Rate:</label>
-                            <input type="number" step="0.01" class="mobile-rate" placeholder="0.00" oninput="calculateMobileRow(this)">
-                        </div>
-                    </div>
-                    
-                    <div class="mobile-field-row">
-                        <div class="mobile-field-group">
-                            <label>Unit:</label>
-                            <select class="mobile-unit">
-                                <option>PER</option>
-                                <option>KG</option>
-                                <option>PCS</option>
-                                <option>MTR</option>
-                            </select>
-                        </div>
-                        
-                        <div class="mobile-field-group">
-                            <label>Amount:</label>
-                            <input type="text" class="mobile-amount" value="0.00" readonly style="background: rgba(255,255,255,0.1); font-weight: bold; color: #74b9ff;">
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="form-row">
-                <div class="form-group">
-                    <label>Freight Charges:</label>
-                    <input type="number" id="freightCharges" value="0" oninput="updateTotals()">
-                </div>
-            </div>
-
-            <button class="btn" onclick="addNewRow()">+ Add Item</button>
-            <button class="btn" onclick="generateInvoice()">Generate Preview</button>
-            <button class="btn" id="downloadBtn" onclick="downloadPDF()" style="display: none;">Print / Save PDF</button>
-        </div>
-
-        <div class="invoice-preview" id="invoicePreview">
-            <div class="invoice" id="invoiceContent">
-                <!-- Invoice content will be generated here -->
-            </div>
-        </div>
+      <div class="sync-status" aria-label="Customer database connected">
+        <span class="sync-status__dot" aria-hidden="true"></span>
+        <span>Cloud database</span>
+      </div>
     </div>
-
-    <script>
-        // Global variables
-        let invoiceData = {};
-        let savedCustomers = [];
-        let isNewCustomerMode = false;
-
-        const API_BASE = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
-            ? 'http://localhost:8788'
-            : '';
-
-        // Initialize app
-        document.addEventListener('DOMContentLoaded', function() {
-            console.log('App initializing...');
-            
-            // Set today's date
-            document.getElementById('invoiceDate').value = new Date().toISOString().split('T')[0];
-            
-            // Initialize totals
-            calculateTotals();
-
-            // Load saved customers from D1
-            loadCustomers();
-            
-            console.log('App initialized successfully');
-        });
-
-        async function loadCustomers() {
-            const select = document.getElementById('customerSelect');
-            select.disabled = true;
-
-            try {
-                const response = await fetch(`${API_BASE}/api/customers`);
-                const data = await response.json();
-
-                if (!response.ok || !data.success) {
-                    throw new Error(data.error || 'Failed to load customers');
-                }
-
-                savedCustomers = data.customers || [];
-                populateCustomerSelect();
-            } catch (error) {
-                console.error('Failed to load customers:', error);
-                showNotification('Could not load saved customers. You can still enter details manually.', 'info');
-            } finally {
-                select.disabled = false;
-            }
-        }
-
-        function populateCustomerSelect(selectedId) {
-            const select = document.getElementById('customerSelect');
-            const currentValue = selectedId !== undefined ? String(selectedId) : select.value;
-
-            select.innerHTML = '<option value="">Select saved customer</option>';
-
-            savedCustomers.forEach(customer => {
-                const option = document.createElement('option');
-                option.value = customer.id;
-                option.textContent = customer.name;
-                select.appendChild(option);
-            });
-
-            if (currentValue) {
-                select.value = currentValue;
-            }
-        }
-
-        function fillBuyerFields(customer) {
-            document.getElementById('buyerName').value = customer.name || '';
-            document.getElementById('buyerAddress').value = customer.address || '';
-            document.getElementById('buyerGstin').value = customer.gstin || '';
-            document.getElementById('buyerStateCode').value = customer.state_code || '24';
-        }
-
-        function clearCustomerFields() {
-            document.getElementById('buyerName').value = '';
-            document.getElementById('buyerAddress').value = '';
-            document.getElementById('buyerGstin').value = '';
-            document.getElementById('buyerStateCode').value = '24';
-        }
-
-        function setCustomerEditorVisible(visible) {
-            document
-                .getElementById('customerEditor')
-                .classList.toggle('visible', visible);
-        }
-
-        function onCustomerSelect() {
-            isNewCustomerMode = false;
-            setCustomerEditorVisible(false);
-
-            const select = document.getElementById('customerSelect');
-            const customerId = select.value;
-
-            if (!customerId) {
-                clearCustomerFields();
-                return;
-            }
-
-            const customer = savedCustomers.find(
-                c => String(c.id) === String(customerId)
-            );
-
-            if (customer) {
-                fillBuyerFields(customer);
-            }
-        }
-
-        function startNewCustomer() {
-            isNewCustomerMode = true;
-
-            document.getElementById('customerSelect').value = '';
-            clearCustomerFields();
-            setCustomerEditorVisible(true);
-
-            document.getElementById('buyerName').focus();
-        }
-
-        function cancelNewCustomer() {
-            isNewCustomerMode = false;
-            setCustomerEditorVisible(false);
-
-            const selectedId = document.getElementById('customerSelect').value;
-
-            if (selectedId) {
-                const customer = savedCustomers.find(
-                    c => String(c.id) === String(selectedId)
-                );
-
-                if (customer) {
-                    fillBuyerFields(customer);
-                }
-            } else {
-                clearCustomerFields();
-            }
-        }
-
-        async function saveNewCustomer() {
-            const name = document.getElementById('buyerName').value.trim();
-            const address = document.getElementById('buyerAddress').value.trim();
-            const gstin = document.getElementById('buyerGstin').value.trim().toUpperCase();
-            const stateCode =
-                document.getElementById('buyerStateCode').value.trim() || '24';
-
-            if (!name) {
-                showNotification('Customer name is required to save.', 'error');
-                return;
-            }
-
-            if (!/^\d{2}$/.test(stateCode)) {
-                showNotification(
-                    'Buyer state code must be exactly 2 digits.',
-                    'error'
-                );
-                return;
-            }
-
-            try {
-                showNotification('Saving customer...', 'info');
-
-                const response = await fetch(`${API_BASE}/api/customers`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        name,
-                        address,
-                        gstin,
-                        state_code: stateCode
-                    })
-                });
-
-                const data = await response.json();
-
-                if (!response.ok || !data.success) {
-                    throw new Error(
-                        data.error || 'Failed to save customer'
-                    );
-                }
-
-                savedCustomers.push(data.customer);
-
-                savedCustomers.sort((a, b) =>
-                    a.name.localeCompare(b.name)
-                );
-
-                isNewCustomerMode = false;
-
-                populateCustomerSelect(data.customer.id);
-                fillBuyerFields(data.customer);
-                setCustomerEditorVisible(false);
-
-                showNotification(
-                    `Customer "${data.customer.name}" saved successfully!`,
-                    'success'
-                );
-            } catch (error) {
-                console.error('Failed to save customer:', error);
-
-                showNotification(
-                    error.message || 'Unable to save customer.',
-                    'error'
-                );
-            }
-        }
-
-        // Add new item (handles both desktop and mobile)
-        function addNewRow() {
-            if (isMobileDevice()) {
-                addMobileItem();
-            } else {
-                addDesktopRow();
-            }
-        }
-        
-        // Add new row to desktop items table
-        function addDesktopRow() {
-            console.log('Adding new desktop row...');
-            const tbody = document.getElementById('itemsTableBody');
-            const newRow = `
-                <tr>
-                    <td>
-                        <select onchange="updateItemDetails(this)">
-                            <option value="">Select Item</option>
-                            <option value="SINGLE STUD CHAPLETS">SINGLE STUD CHAPLETS</option>
-                            <option value="DOUBLE STUD CHAPLETS">DOUBLE STUD CHAPLETS</option>
-                            <option value="SINGLE STUD CHAPLETS (HEAVY STUD)">SINGLE STUD CHAPLETS (HEAVY STUD)</option>
-                        </select>
-                    </td>
-                    <td><input type="text" placeholder="Size"></td>
-                    <td><input type="text" value="7326" readonly></td>
-                    <td><input type="number" oninput="calculateRow(this)" placeholder="0"></td>
-                    <td><input type="number" step="0.01" oninput="calculateRow(this)" placeholder="0.00"></td>
-                    <td>
-                        <select>
-                            <option>PER</option>
-                            <option>KG</option>
-                            <option>PCS</option>
-                            <option>MTR</option>
-                        </select>
-                    </td>
-                    <td class="amount">0.00</td>
-                    <td><button class="btn btn-danger" onclick="removeRow(this)">×</button></td>
-                </tr>
-            `;
-            tbody.insertAdjacentHTML('beforeend', newRow);
-            console.log('New desktop row added');
-        }
-        
-        // Add new mobile item card
-        function addMobileItem() {
-            console.log('Adding new mobile item...');
-            const container = document.getElementById('mobileItemsContainer');
-            const existingItems = container.querySelectorAll('.mobile-item-card');
-            const newIndex = existingItems.length;
-            
-            const itemHTML = `
-                <div class="mobile-item-card" data-item-index="${newIndex}">
-                    <div class="mobile-item-header">
-                        <span class="mobile-item-title">Item #${newIndex + 1}</span>
-                        <button class="mobile-remove-btn" onclick="removeMobileItem(this)">Remove</button>
-                    </div>
-                    
-                    <div class="mobile-field-group">
-                        <label>Description:</label>
-                        <select class="mobile-description" onchange="updateMobileItemDetails(this)">
-                            <option value="">Select Item</option>
-                            <option value="SINGLE STUD CHAPLETS">SINGLE STUD CHAPLETS</option>
-                            <option value="DOUBLE STUD CHAPLETS">DOUBLE STUD CHAPLETS</option>
-                            <option value="SINGLE STUD CHAPLETS (HEAVY STUD)">SINGLE STUD CHAPLETS (HEAVY STUD)</option>
-                        </select>
-                    </div>
-                    
-                    <div class="mobile-field-group">
-                        <label>Size:</label>
-                        <input type="text" class="mobile-size" placeholder="Enter size">
-                    </div>
-                    
-                    <div class="mobile-field-group">
-                        <label>HSN/SAC Code:</label>
-                        <input type="text" class="mobile-hsn" value="7326" readonly style="background: rgba(255,255,255,0.1);">
-                    </div>
-                    
-                    <div class="mobile-field-row">
-                        <div class="mobile-field-group">
-                            <label>Quantity:</label>
-                            <input type="number" class="mobile-quantity" placeholder="0" oninput="calculateMobileRow(this)">
-                        </div>
-                        
-                        <div class="mobile-field-group">
-                            <label>Rate:</label>
-                            <input type="number" step="0.01" class="mobile-rate" placeholder="0.00" oninput="calculateMobileRow(this)">
-                        </div>
-                    </div>
-                    
-                    <div class="mobile-field-row">
-                        <div class="mobile-field-group">
-                            <label>Unit:</label>
-                            <select class="mobile-unit">
-                                <option>PER</option>
-                                <option>KG</option>
-                                <option>PCS</option>
-                                <option>MTR</option>
-                            </select>
-                        </div>
-                        
-                        <div class="mobile-field-group">
-                            <label>Amount:</label>
-                            <input type="text" class="mobile-amount" value="0.00" readonly style="background: rgba(255,255,255,0.1); font-weight: bold; color: #74b9ff;">
-                        </div>
-                    </div>
-                </div>
-            `;
-            
-            container.insertAdjacentHTML('beforeend', itemHTML);
-            updateMobileRemoveButtons();
-            console.log('New mobile item added');
-        }
-
-        // Remove mobile item card
-        function removeMobileItem(btn) {
-            console.log('Removing mobile item...');
-            const card = btn.closest('.mobile-item-card');
-            card.remove();
-            updateMobileItemNumbers();
-            updateMobileRemoveButtons();
-            calculateMobileTotals();
-            console.log('Mobile item removed');
-        }
-        
-        // Remove row from desktop items table
-        function removeRow(btn) {
-            console.log('Removing desktop row...');
-            btn.closest('tr').remove();
-            calculateTotals();
-            console.log('Desktop row removed');
-        }
-
-        // Calculate row amount
-        function calculateRow(input) {
-            console.log('Calculating row...');
-            const row = input.closest('tr');
-            const quantity = parseFloat(row.cells[3].querySelector('input').value) || 0;
-            const rate = parseFloat(row.cells[4].querySelector('input').value) || 0;
-            const amount = quantity * rate;
-            row.cells[6].textContent = amount.toFixed(2);
-            calculateTotals();
-            console.log('Row calculated:', amount);
-        }
-
-        // Calculate totals
-        function calculateTotals() {
-            console.log('Calculating totals...');
-            const rows = document.querySelectorAll('#itemsTableBody tr');
-            let subtotal = 0;
-            
-            rows.forEach(row => {
-                const amount = parseFloat(row.cells[6].textContent) || 0;
-                subtotal += amount;
-            });
-
-            const freight = parseFloat(document.getElementById('freightCharges').value) || 0;
-            const totalBeforeTax = subtotal + freight;
-            const cgst = totalBeforeTax * 0.09;
-            const sgst = totalBeforeTax * 0.09;
-            const finalTotal = totalBeforeTax + cgst + sgst;
-
-            // Store in global variable
-            invoiceData = {
-                subtotal: subtotal,
-                freight: freight,
-                cgst: cgst,
-                sgst: sgst,
-                total: finalTotal
-            };
-
-            console.log('Totals calculated:', invoiceData);
-        }
-
-        // Calculate mobile row amount
-        function calculateMobileRow(input) {
-            console.log('Calculating mobile row...');
-            const card = input.closest('.mobile-item-card');
-            const quantity = parseFloat(card.querySelector('.mobile-quantity').value) || 0;
-            const rate = parseFloat(card.querySelector('.mobile-rate').value) || 0;
-            const amount = quantity * rate;
-            card.querySelector('.mobile-amount').value = amount.toFixed(2);
-            calculateMobileTotals();
-            console.log('Mobile row calculated:', amount);
-        }
-        
-        // Calculate mobile totals
-        function calculateMobileTotals() {
-            console.log('Calculating mobile totals...');
-            const cards = document.querySelectorAll('.mobile-item-card');
-            let subtotal = 0;
-            
-            cards.forEach(card => {
-                const amount = parseFloat(card.querySelector('.mobile-amount').value) || 0;
-                subtotal += amount;
-            });
-
-            const freight = parseFloat(document.getElementById('freightCharges').value) || 0;
-            const totalBeforeTax = subtotal + freight;
-            const cgst = totalBeforeTax * 0.09;
-            const sgst = totalBeforeTax * 0.09;
-            const finalTotal = totalBeforeTax + cgst + sgst;
-
-            // Store in global variable (same as desktop)
-            invoiceData = {
-                subtotal: subtotal,
-                freight: freight,
-                cgst: cgst,
-                sgst: sgst,
-                total: finalTotal
-            };
-
-            console.log('Mobile totals calculated:', invoiceData);
-        }
-        
-        // Update mobile item numbers after removal
-        function updateMobileItemNumbers() {
-            const cards = document.querySelectorAll('.mobile-item-card');
-            cards.forEach((card, index) => {
-                card.setAttribute('data-item-index', index);
-                card.querySelector('.mobile-item-title').textContent = `Item #${index + 1}`;
-            });
-        }
-        
-        // Update mobile remove button visibility
-        function updateMobileRemoveButtons() {
-            const cards = document.querySelectorAll('.mobile-item-card');
-            cards.forEach((card, index) => {
-                const removeBtn = card.querySelector('.mobile-remove-btn');
-                if (cards.length > 1) {
-                    removeBtn.style.display = 'inline-block';
-                } else {
-                    removeBtn.style.display = 'none';
-                }
-            });
-        }
-        
-        // Update mobile item details (placeholder for future use)
-        function updateMobileItemDetails(select) {
-            console.log('Mobile item selected:', select.value);
-        }
-        
-        // Update desktop item details (placeholder for future use)
-        function updateItemDetails(select) {
-            console.log('Desktop item selected:', select.value);
-        }
-        
-        // Update totals - calls appropriate function based on current view
-        function updateTotals() {
-            if (isMobileDevice()) {
-                calculateMobileTotals();
-            } else {
-                calculateTotals();
-            }
-        }
-
-        // Validate invoice data (works for both desktop and mobile)
-        function validateInvoiceData() {
-            console.log('Validating invoice data...');
-            
-            // Check buyer name
-            const buyerName = document.getElementById('buyerName').value.trim();
-            if (!buyerName) {
-                showNotification('Please enter buyer name', 'error');
-                return false;
-            }
-
-            // Check invoice date
-            const invoiceDate = document.getElementById('invoiceDate').value;
-            if (!invoiceDate) {
-                showNotification('Please select invoice date', 'error');
-                return false;
-            }
-
-            // Check items based on current view
-            let hasValidItems = false;
-            
-            if (isMobileDevice()) {
-                // Validate mobile items
-                const cards = document.querySelectorAll('.mobile-item-card');
-                for (let card of cards) {
-                    const description = card.querySelector('.mobile-description').value;
-                    const quantity = parseFloat(card.querySelector('.mobile-quantity').value) || 0;
-                    const rate = parseFloat(card.querySelector('.mobile-rate').value) || 0;
-                    
-                    if (description && quantity > 0 && rate > 0) {
-                        hasValidItems = true;
-                        break;
-                    }
-                }
-            } else {
-                // Validate desktop items
-                const rows = document.querySelectorAll('#itemsTableBody tr');
-                for (let row of rows) {
-                    const description = row.cells[0].querySelector('select').value;
-                    const quantity = parseFloat(row.cells[3].querySelector('input').value) || 0;
-                    const rate = parseFloat(row.cells[4].querySelector('input').value) || 0;
-                    
-                    if (description && quantity > 0 && rate > 0) {
-                        hasValidItems = true;
-                        break;
-                    }
-                }
-            }
-            
-            if (!hasValidItems) {
-                showNotification('Please add at least one item with description, quantity, and rate', 'error');
-                return false;
-            }
-
-            console.log('Validation passed');
-            return true;
-        }
-
-        // Generate invoice preview
-        function generateInvoice() {
-            console.log('Generating invoice...');
-            
-            if (!validateInvoiceData()) {
-                return;
-            }
-
-            updateTotals();
-
-            const invoiceNo = document.getElementById('invoiceNo').value || '1';
-            const invoiceDate = document.getElementById('invoiceDate').value;
-            const stateCode = document.getElementById('stateCode').value || '24';
-            const buyerName = document.getElementById('buyerName').value || 'BUYER NAME';
-            const buyerAddress = document.getElementById('buyerAddress').value || 'BUYER ADDRESS';
-            const buyerOrderNo = document.getElementById('buyerOrderNo').value || '-';
-            const buyerGstin = document.getElementById('buyerGstin').value || '';
-            const buyerStateCode = document.getElementById('buyerStateCode').value || '24';
-
-            // Format date
-            const formattedDate = new Date(invoiceDate).toLocaleDateString('en-GB');
-
-            // Generate items HTML from appropriate data source
-            let itemsHTML = '';
-            let srNo = 1;
-            
-            if (isMobileDevice()) {
-                // Get data from mobile cards
-                const cards = document.querySelectorAll('.mobile-item-card');
-                cards.forEach(card => {
-                    const description = card.querySelector('.mobile-description').value;
-                    const size = card.querySelector('.mobile-size').value || '';
-                    const hsnCode = card.querySelector('.mobile-hsn').value || '7326';
-                    const quantity = card.querySelector('.mobile-quantity').value || '0';
-                    const rate = card.querySelector('.mobile-rate').value || '0.00';
-                    const unit = card.querySelector('.mobile-unit').value || 'PER';
-                    const amount = card.querySelector('.mobile-amount').value || '0.00';
-
-                    if (description) {
-                        itemsHTML += `
-                            <tr>
-                                <td>${srNo}</td>
-                                <td class="description">${description.toUpperCase()}</td>
-                                <td>${size}</td>
-                                <td>${hsnCode}</td>
-                                <td>${quantity}</td>
-                                <td>${parseFloat(rate).toFixed(2)}</td>
-                                <td>${unit}</td>
-                                <td>${parseFloat(amount).toFixed(2)}</td>
-                            </tr>
-                        `;
-                        srNo++;
-                    }
-                });
-            } else {
-                // Get data from desktop table
-                const rows = document.querySelectorAll('#itemsTableBody tr');
-                rows.forEach(row => {
-                    const description = row.cells[0].querySelector('select').value;
-                    const size = row.cells[1].querySelector('input').value || '';
-                    const hsnCode = row.cells[2].querySelector('input').value || '7326';
-                    const quantity = row.cells[3].querySelector('input').value || '0';
-                    const rate = row.cells[4].querySelector('input').value || '0.00';
-                    const unit = row.cells[5].querySelector('select').value || 'PER';
-                    const amount = row.cells[6].textContent || '0.00';
-
-                    if (description) {
-                        itemsHTML += `
-                            <tr>
-                                <td>${srNo}</td>
-                                <td class="description">${description.toUpperCase()}</td>
-                                <td>${size}</td>
-                                <td>${hsnCode}</td>
-                                <td>${quantity}</td>
-                                <td>${parseFloat(rate).toFixed(2)}</td>
-                                <td>${unit}</td>
-                                <td>${parseFloat(amount).toFixed(2)}</td>
-                            </tr>
-                        `;
-                        srNo++;
-                    }
-                });
-            }
-
-            // Generate complete invoice HTML (matches provided layout)
-            const invoiceHTML = `
-                <div class="invoice-header">
-                    <div class="invoice-title">TAX INVOICE</div>
-                    <div class="company-title">JAI CHAMMUNDA FABRICATION</div>
-                    <div class="company-subtitle">D/4, Om Society, NR. Bharat Party Plot, Rabari Colony,<br>Amraiwadi, Ahmedabad, Gujarat - 380026</div>
-                    </div>
-
-                <div class="row tight">
-                    <div class="box">
-                        <table class="kv-table">
-                            <tr>
-                                <td class="label">STATE Code</td>
-                                <td>24</td>
-                            </tr>
-                        </table>
-                    </div>
-                    <div class="box">
-                        <table class="kv-table">
-                            <tr>
-                                <td class="label">GSTIN</td>
-                                <td>24AYCPD6656K1ZC</td>
-                            </tr>
-                        </table>
-                    </div>
-                </div>
-
-                <div class="row tight">
-                    <div class="box" style="grid-column: 1 / -1;">
-                        <table class="kv-table">
-                            <tr>
-                                <td class="label">Invoice no.:</td>
-                                <td>${invoiceNo}</td>
-                            </tr>
-                            <tr>
-                                <td class="label">Date</td>
-                                <td>${formattedDate}</td>
-                            </tr>
-                        </table>
-                    </div>
-                </div>
-
-                <div class="row tight">
-                    <div class="box">
-                        <table class="kv-table">
-                            <tr>
-                                <td class="label">PAN No.</td>
-                                <td>AYCPD6656K</td>
-                            </tr>
-                        </table>
-                    </div>
-                    <div class="box">
-                        <table class="kv-table">
-                            <tr>
-                                <td class="label">Buyer's order no.</td>
-                                <td>${buyerOrderNo || '-'}</td>
-                            </tr>
-                            <tr>
-                                <td class="label">Destination</td>
-                                <td>-</td>
-                            </tr>
-                        </table>
-                    </div>
-                </div>
-
-                <div class="row tight">
-                    <div class="box">
-                        <table class="kv-table">
-                            <tr>
-                                <td class="label">Buyer Details:</td>
-                                <td>
-                                    <div><strong>${buyerName}</strong></div>
-                                    <div class="muted">${buyerAddress}</div>
-                                </td>
-                            </tr>
-                        </table>
-                        </div>
-                    <div class="box">
-                        <table class="kv-table">
-                            <tr>
-                                <td class="label">Bank Details:</td>
-                                <td>
-                                    NIDHI CO-OP. BANK LTD. C.T.M, Amraiwadi, Ahmedabad-26.<br>
-                                    ACCOUNT NO.: 002111110008319 IFSC CODE: ICIC000NIDHI<br>
-                                    CONTACT NO.: +918128309214<br>
-                                    ONLINE PAYMENT AVAILABLE
-                                </td>
-                            </tr>
-                        </table>
-                        </div>
-                </div>
-
-                <div class="row tight">
-                    <div class="box">
-                        <table class="kv-table">
-                            <tr>
-                                <td class="label">State Code:</td>
-                                <td>${buyerStateCode}</td>
-                            </tr>
-                        </table>
-                    </div>
-                    <div class="box">
-                        <table class="kv-table">
-                            <tr>
-                                <td class="label">GSTIN/UID:</td>
-                                <td>${buyerGstin || '-'}</td>
-                            </tr>
-                        </table>
-                    </div>
-                </div>
-
-                <table class="items">
-                    <thead>
-                        <tr>
-                            <th>SR.NO</th>
-                            <th>Description of Goods</th>
-                            <th>Size (MM)</th>
-                            <th>HSN/SAC Code</th>
-                            <th>Quantity</th>
-                            <th>Rate</th>
-                            <th>Unit</th>
-                            <th>Amount</th>
-                        </tr>
-                    </thead>
-                    <tbody>${itemsHTML}</tbody>
-                </table>
-
-                <div class="totals-wrap">
-                    <div class="box" style="min-height:120px"></div>
-                    <div class="totals-box">
-                        <div class="totals-line"><span>Total:</span><span>₹${invoiceData.subtotal.toFixed(2)}</span></div>
-                        <div class="totals-line"><span>Add CGST @ 9%</span><span>₹${invoiceData.cgst.toFixed(2)}</span></div>
-                        <div class="totals-line"><span>Add SGST @ 9%</span><span>₹${invoiceData.sgst.toFixed(2)}</span></div>
-                        <div class="totals-line totals-final"><span>TOTAL:</span><span>₹${invoiceData.total.toFixed(2)}</span></div>
-                    </div>
-                </div>
-
-                <div class="box" style="margin-top:8px; padding:8px;">
-                    <strong>Amount (In Words):</strong> - ${numberToWords(invoiceData.total)}
-                </div>
-
-                <div class="box" style="margin-top:8px; padding:8px;">
-                    <strong>CERTIFICATE:-</strong><br>
-                    Certified that the JAI CHAMMUNDA FABRICATION, AHMEDABAD are registered manufacturers in this state.<br>
-                    Certified that Particulars given above are true and correct and amount indicated represent the price actually charged and there is no
-                    additional consideration directly or indirectly from the buyer.<br>
-                    Interest @18% P.A. Will be Charged on Bills not paid within due date, as per MSMED Act 2006.
-                </div>
-
-                <div class="signature-row">
-                    <div class="signature-box">
-                        <div style="font-weight:700;">JAI CHAMMUNDA FABRICATION</div>
-                        <div class="muted" style="margin-top:30px;">Authorised Signature</div>
-                    </div>
-                </div>
-
-                <div class="footer">This is computer generated Invoice.</div>
-            `;
-
-            document.getElementById('invoiceContent').innerHTML = invoiceHTML;
-            document.getElementById('invoicePreview').style.display = 'block';
-            document.getElementById('downloadBtn').style.display = 'inline-block';
-            
-            // Scroll to preview
-            document.getElementById('invoicePreview').scrollIntoView({ behavior: 'smooth' });
-            
-            showNotification('Invoice preview generated successfully!', 'success');
-            console.log('Invoice preview generated');
-        }
-
-        function downloadPDF() {
-            console.log('Opening printable invoice...');
-
-            if (!validateInvoiceData()) {
-                return;
-            }
-
-            // Make sure the preview contains the latest values.
-            generateInvoice();
-
-            const invoiceNo =
-                document.getElementById('invoiceNo').value || '1';
-
-            const buyerName =
-                document.getElementById('buyerName').value || 'BUYER_NAME';
-
-            const cleanBuyerName = buyerName
-                .replace(/[^\w\s]/gi, '')
-                .replace(/\s+/g, '_');
-
-            const oldTitle = document.title;
-
-            // Chrome usually uses the page title as the suggested PDF filename.
-            document.title =
-                `${cleanBuyerName}_(Invoice_${invoiceNo})`;
-
-            // Browser print-to-PDF keeps the invoice text selectable/searchable,
-            // unlike the old html2canvas screenshot approach.
-            window.print();
-
-            document.title = oldTitle;
-        }
-
-        // Convert number to words
-        function numberToWords(amount) {
-            const ones = ["", "ONE", "TWO", "THREE", "FOUR", "FIVE", "SIX", "SEVEN", "EIGHT", "NINE"];
-            const teens = ["TEN", "ELEVEN", "TWELVE", "THIRTEEN", "FOURTEEN", "FIFTEEN", "SIXTEEN", "SEVENTEEN", "EIGHTEEN", "NINETEEN"];
-            const tens = ["", "", "TWENTY", "THIRTY", "FORTY", "FIFTY", "SIXTY", "SEVENTY", "EIGHTY", "NINETY"];
-
-            if (amount === 0) return "ZERO ONLY";
-
-            function convertGroup(num) {
-                let result = "";
-                const hundreds = Math.floor(num / 100);
-                const remainder = num % 100;
-
-                if (hundreds > 0) {
-                    result += ones[hundreds] + " HUNDRED ";
-                }
-
-                if (remainder >= 20) {
-                    result += tens[Math.floor(remainder / 10)] + " ";
-                    if (remainder % 10 > 0) {
-                        result += ones[remainder % 10] + " ";
-                    }
-                } else if (remainder >= 10) {
-                    result += teens[remainder - 10] + " ";
-                } else if (remainder > 0) {
-                    result += ones[remainder] + " ";
-                }
-
-                return result.trim();
-            }
-
-            const integerPart = Math.floor(amount);
-            let result = "";
-
-            if (integerPart >= 10000000) {
-                const crores = Math.floor(integerPart / 10000000);
-                result += convertGroup(crores) + " CRORE ";
-                const remainder = integerPart % 10000000;
-                if (remainder >= 100000) {
-                    const lakhs = Math.floor(remainder / 100000);
-                    result += convertGroup(lakhs) + " LAKH ";
-                    const thousands = Math.floor((remainder % 100000) / 1000);
-                    if (thousands > 0) {
-                        result += convertGroup(thousands) + " THOUSAND ";
-                    }
-                    const hundreds = remainder % 1000;
-                    if (hundreds > 0) {
-                        result += convertGroup(hundreds) + " ";
-                    }
-                } else if (remainder >= 1000) {
-                    const thousands = Math.floor(remainder / 1000);
-                    result += convertGroup(thousands) + " THOUSAND ";
-                    const hundreds = remainder % 1000;
-                    if (hundreds > 0) {
-                        result += convertGroup(hundreds) + " ";
-                    }
-                } else if (remainder > 0) {
-                    result += convertGroup(remainder) + " ";
-                }
-            } else if (integerPart >= 100000) {
-                const lakhs = Math.floor(integerPart / 100000);
-                result += convertGroup(lakhs) + " LAKH ";
-                const remainder = integerPart % 100000;
-                if (remainder >= 1000) {
-                    const thousands = Math.floor(remainder / 1000);
-                    result += convertGroup(thousands) + " THOUSAND ";
-                    const hundreds = remainder % 1000;
-                    if (hundreds > 0) {
-                        result += convertGroup(hundreds) + " ";
-                    }
-                } else if (remainder > 0) {
-                    result += convertGroup(remainder) + " ";
-                }
-            } else if (integerPart >= 1000) {
-                const thousands = Math.floor(integerPart / 1000);
-                result += convertGroup(thousands) + " THOUSAND ";
-                const hundreds = integerPart % 1000;
-                if (hundreds > 0) {
-                    result += convertGroup(hundreds) + " ";
-                }
-            } else {
-                result += convertGroup(integerPart) + " ";
-            }
-
-            return result.trim() + " ONLY";
-        }
-
-        // Mobile device detection
-        function isMobileDevice() {
-            return /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || 
-                   (window.innerWidth <= 768 && window.innerHeight <= 1024);
-        }
-
-        // Show notification
-        function showNotification(message, type = 'info') {
-            console.log('Notification:', message, type);
-            
-            // Remove existing notifications
-            const existingNotifications = document.querySelectorAll('.notification');
-            existingNotifications.forEach(n => n.remove());
-
-            // Create new notification
-            const notification = document.createElement('div');
-            notification.className = `notification ${type}`;
-            notification.textContent = message;
-
-            // Add to page
-            document.body.appendChild(notification);
-
-            // Remove after 5 seconds
-            setTimeout(() => {
-                if (notification.parentNode) {
-                    notification.parentNode.removeChild(notification);
-                }
-            }, 5000);
-        }
-
-        // Error handling
-        window.addEventListener('error', function(e) {
-            console.error('Global error:', e.error);
-            showNotification('An error occurred: ' + e.error.message, 'error');
-        });
-
-        console.log('Invoice generator loaded successfully');
-    </script>
+  </header>
+
+  <main id="invoice-workspace" class="app-shell">
+    <section class="workspace" aria-labelledby="page-title">
+      <div class="page-heading">
+        <div>
+          <p class="eyebrow">Billing</p>
+          <h1 id="page-title">Create invoice</h1>
+          <p class="page-subtitle">Select a customer, add items, review the totals, then print a proper selectable PDF.</p>
+        </div>
+        <span class="document-chip">Tax invoice</span>
+      </div>
+
+      <section class="panel" aria-labelledby="invoice-details-title">
+        <div class="section-heading">
+          <span class="step-badge" aria-hidden="true">1</span>
+          <div>
+            <h2 id="invoice-details-title">Invoice details</h2>
+            <p>Basic information that identifies this invoice.</p>
+          </div>
+        </div>
+
+        <div class="field-grid field-grid--3">
+          <div class="field">
+            <label for="invoiceNo">Invoice number</label>
+            <input id="invoiceNo" name="invoiceNo" type="text" inputmode="numeric" value="18" autocomplete="off">
+          </div>
+
+          <div class="field">
+            <label for="invoiceDate">Invoice date</label>
+            <input id="invoiceDate" name="invoiceDate" type="date">
+          </div>
+
+          <div class="field">
+            <span class="field__label">Seller state</span>
+            <div class="readonly-field" aria-label="Seller state Gujarat, state code 24">
+              Gujarat <span>24</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel" aria-labelledby="customer-title">
+        <div class="section-heading">
+          <span class="step-badge" aria-hidden="true">2</span>
+          <div>
+            <h2 id="customer-title">Customer</h2>
+            <p>Choose a saved customer. Customer fields only open when you add a new one.</p>
+          </div>
+        </div>
+
+        <div class="customer-picker">
+          <div class="field customer-picker__select">
+            <label for="customerSelect">Saved customer</label>
+            <select id="customerSelect" name="customerSelect">
+              <option value="">Select a customer</option>
+            </select>
+            <p id="customerLoadHint" class="field-hint">Loading saved customers…</p>
+          </div>
+
+          <button id="newCustomerButton" class="button button--secondary customer-picker__action" type="button">
+            <span aria-hidden="true">＋</span>
+            New customer
+          </button>
+        </div>
+
+        <div id="customerEmptyState" class="customer-empty">
+          <strong>No customer selected</strong>
+          <span>Select a saved customer or add a new one.</span>
+        </div>
+
+        <div id="customerSummary" class="customer-summary" hidden>
+          <div class="customer-summary__main">
+            <div class="customer-summary__title-row">
+              <h3 id="selectedCustomerName"></h3>
+              <span id="selectedCustomerState" class="tag"></span>
+            </div>
+            <p id="selectedCustomerAddress"></p>
+          </div>
+          <div class="customer-summary__meta">
+            <span>GSTIN</span>
+            <strong id="selectedCustomerGstin">—</strong>
+          </div>
+        </div>
+
+        <div class="field-grid field-grid--2 customer-order-row">
+          <div class="field">
+            <label for="buyerOrderNo">Buyer order number <span class="optional">(optional)</span></label>
+            <input id="buyerOrderNo" name="buyerOrderNo" type="text" placeholder="e.g. PO-1042" autocomplete="off">
+          </div>
+
+          <div class="field">
+            <label for="destination">Destination <span class="optional">(optional)</span></label>
+            <input id="destination" name="destination" type="text" placeholder="e.g. Ahmedabad" autocomplete="off">
+          </div>
+        </div>
+      </section>
+
+      <section class="panel" aria-labelledby="items-title">
+        <div class="section-heading section-heading--items">
+          <span class="step-badge" aria-hidden="true">3</span>
+          <div>
+            <h2 id="items-title">Items & services</h2>
+            <p>Rate remains manually editable for every invoice.</p>
+          </div>
+          <button id="addItemButtonTop" class="button button--secondary section-heading__action" type="button">
+            <span aria-hidden="true">＋</span>
+            Add item
+          </button>
+        </div>
+
+        <div class="table-wrap">
+          <table class="items-table" aria-label="Invoice items">
+            <thead>
+              <tr>
+                <th scope="col">Description</th>
+                <th scope="col">Size</th>
+                <th scope="col">HSN/SAC</th>
+                <th scope="col">Qty</th>
+                <th scope="col">Rate</th>
+                <th scope="col">Unit</th>
+                <th scope="col">Amount</th>
+                <th scope="col"><span class="sr-only">Actions</span></th>
+              </tr>
+            </thead>
+            <tbody id="itemsTableBody"></tbody>
+          </table>
+        </div>
+
+        <div id="mobileItemsContainer" class="mobile-items" aria-label="Invoice items"></div>
+
+        <button id="addItemButton" class="button button--ghost add-item-mobile" type="button">
+          <span aria-hidden="true">＋</span>
+          Add another item
+        </button>
+      </section>
+    </section>
+
+    <aside class="summary-column" aria-label="Invoice summary">
+      <div class="summary-card">
+        <div class="summary-card__heading">
+          <div>
+            <p class="eyebrow">Review</p>
+            <h2>Invoice summary</h2>
+          </div>
+          <span id="summaryItemCount" class="tag">1 item</span>
+        </div>
+
+        <div class="field">
+          <label for="freightCharges">Freight charges</label>
+          <div class="money-input">
+            <span aria-hidden="true">₹</span>
+            <input id="freightCharges" name="freightCharges" type="number" min="0" step="0.01" value="0" inputmode="decimal">
+          </div>
+        </div>
+
+        <div class="summary-lines" aria-live="polite">
+          <div class="summary-line">
+            <span>Subtotal</span>
+            <strong id="summarySubtotal">₹0.00</strong>
+          </div>
+          <div class="summary-line">
+            <span>Freight</span>
+            <strong id="summaryFreight">₹0.00</strong>
+          </div>
+          <div class="summary-line">
+            <span>CGST <small>9%</small></span>
+            <strong id="summaryCgst">₹0.00</strong>
+          </div>
+          <div class="summary-line">
+            <span>SGST <small>9%</small></span>
+            <strong id="summarySgst">₹0.00</strong>
+          </div>
+          <div class="summary-line summary-line--total">
+            <span>Total</span>
+            <strong id="summaryTotal">₹0.00</strong>
+          </div>
+        </div>
+
+        <div class="summary-actions">
+          <button id="previewButton" class="button button--secondary button--full" type="button">
+            Preview invoice
+          </button>
+          <button id="printButton" class="button button--primary button--full" type="button">
+            Print / Save PDF
+          </button>
+        </div>
+
+        <p class="summary-note">The PDF is created through the browser print engine, so invoice text remains selectable and searchable.</p>
+      </div>
+    </aside>
+  </main>
+
+  <dialog id="customerDialog" class="dialog">
+    <form id="customerForm" class="dialog__surface" novalidate>
+      <div class="dialog__header">
+        <div>
+          <p class="eyebrow">Customers</p>
+          <h2>Add new customer</h2>
+          <p>Save these details once and reuse them on future invoices.</p>
+        </div>
+        <button id="closeCustomerDialog" class="icon-button" type="button" aria-label="Close add customer dialog">×</button>
+      </div>
+
+      <div class="dialog__body">
+        <div id="customerFormError" class="inline-alert inline-alert--error" role="alert" hidden></div>
+
+        <div class="field">
+          <label for="newCustomerName">Customer name</label>
+          <input id="newCustomerName" name="name" type="text" autocomplete="organization" required maxlength="150">
+        </div>
+
+        <div class="field">
+          <label for="newCustomerAddress">Address</label>
+          <textarea id="newCustomerAddress" name="address" rows="3" autocomplete="street-address" maxlength="1000"></textarea>
+        </div>
+
+        <div class="field-grid field-grid--2">
+          <div class="field">
+            <label for="newCustomerGstin">GSTIN <span class="optional">(optional)</span></label>
+            <input id="newCustomerGstin" name="gstin" type="text" autocomplete="off" maxlength="15" autocapitalize="characters" spellcheck="false">
+          </div>
+
+          <div class="field">
+            <label for="newCustomerStateCode">State code</label>
+            <input id="newCustomerStateCode" name="stateCode" type="text" value="24" inputmode="numeric" maxlength="2" pattern="[0-9]{2}" required>
+          </div>
+        </div>
+
+        <div class="field-grid field-grid--2">
+          <div class="field">
+            <label for="newCustomerPhone">Phone <span class="optional">(optional)</span></label>
+            <input id="newCustomerPhone" name="phone" type="tel" autocomplete="tel" maxlength="30">
+          </div>
+
+          <div class="field">
+            <label for="newCustomerEmail">Email <span class="optional">(optional)</span></label>
+            <input id="newCustomerEmail" name="email" type="email" autocomplete="email" maxlength="150">
+          </div>
+        </div>
+      </div>
+
+      <div class="dialog__footer">
+        <button id="cancelCustomerButton" class="button button--secondary" type="button">Cancel</button>
+        <button id="saveCustomerButton" class="button button--primary" type="submit">Save customer</button>
+      </div>
+    </form>
+  </dialog>
+
+  <dialog id="previewDialog" class="dialog preview-dialog">
+    <div class="preview-dialog__surface">
+      <div class="preview-toolbar">
+        <div>
+          <strong>Invoice preview</strong>
+          <span>Check the invoice before printing.</span>
+        </div>
+        <div class="preview-toolbar__actions">
+          <button id="previewPrintButton" class="button button--primary" type="button">Print / Save PDF</button>
+          <button id="closePreviewButton" class="icon-button" type="button" aria-label="Close invoice preview">×</button>
+        </div>
+      </div>
+
+      <div class="preview-canvas">
+        <article id="invoiceContent" class="invoice-document" aria-label="Invoice preview"></article>
+      </div>
+    </div>
+  </dialog>
+
+  <div id="toastRegion" class="toast-region" role="status" aria-live="polite" aria-atomic="true"></div>
 </body>
 </html>
