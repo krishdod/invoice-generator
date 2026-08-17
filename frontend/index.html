@@ -5,10 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>JC - Invoice Generator</title>
     
-    <!-- External Dependencies -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-    
     <style>
         * {
             margin: 0;
@@ -594,6 +590,91 @@
                 font-size: 10px;
             }
         }
+
+        .customer-editor {
+            display: none;
+            margin-top: 16px;
+            padding: 18px;
+            border: 1px solid rgba(255,255,255,0.18);
+            border-radius: 10px;
+            background: rgba(20, 30, 48, 0.28);
+        }
+
+        .customer-editor.visible {
+            display: block;
+        }
+
+        .customer-editor h4 {
+            margin-bottom: 16px;
+            color: #74b9ff;
+        }
+
+        .customer-editor .new-customer-actions {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 4px;
+        }
+
+        @media (max-width: 768px) {
+            .customer-editor .new-customer-actions {
+                flex-direction: column;
+            }
+        }
+
+        /* Real/selectable PDF through the browser print engine */
+        @media print {
+            @page {
+                size: A4;
+                margin: 5mm;
+            }
+
+            html,
+            body {
+                margin: 0 !important;
+                padding: 0 !important;
+                background: #fff !important;
+            }
+
+            body * {
+                visibility: hidden !important;
+            }
+
+            #invoicePreview,
+            #invoicePreview * {
+                visibility: visible !important;
+            }
+
+            #invoicePreview {
+                display: block !important;
+                position: absolute !important;
+                left: 0 !important;
+                top: 0 !important;
+                width: 100% !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                background: #fff !important;
+                border: 0 !important;
+                border-radius: 0 !important;
+                overflow: visible !important;
+            }
+
+            #invoiceContent {
+                width: 200mm !important;
+                min-height: 0 !important;
+                margin: 0 auto !important;
+                padding: 6mm !important;
+                box-shadow: none !important;
+                transform: none !important;
+                overflow: visible !important;
+                font-size: 11px !important;
+            }
+
+            .notification,
+            .btn {
+                display: none !important;
+            }
+        }
     </style>
 </head>
 <body>
@@ -621,42 +702,91 @@
             </div>
 
             <h3>Buyer Details</h3>
+
             <div class="form-row">
-                <div class="form-group customer-select-group">
-                    <label>Customer</label>
+                <div class="form-group">
+                    <label>Customer:</label>
                     <div class="customer-controls">
                         <select id="customerSelect" onchange="onCustomerSelect()">
                             <option value="">Select saved customer</option>
                         </select>
-                        <button type="button" class="btn btn-secondary" onclick="startNewCustomer()">+ New Customer</button>
+
+                        <button
+                            type="button"
+                            class="btn btn-secondary"
+                            onclick="startNewCustomer()">
+                            + New Customer
+                        </button>
                     </div>
                 </div>
-            </div>
-            <div class="form-row">
-                <div class="form-group">
-                    <label>Buyer Name:</label>
-                    <input type="text" id="buyerName" placeholder="Enter buyer name">
-                </div>
-                <div class="form-group">
-                    <label>Buyer Address:</label>
-                    <input type="text" id="buyerAddress" placeholder="Enter buyer address">
-                </div>
-                <div class="form-group">
-                    <label>Buyer GSTIN:</label>
-                    <input type="text" id="buyerGstin" placeholder="Enter GSTIN">
-                </div>
-                <div class="form-group">
-                    <label>Buyer State Code:</label>
-                    <input type="text" id="buyerStateCode" value="24" maxlength="2" placeholder="e.g. 24">
-                </div>
+
                 <div class="form-group">
                     <label>Order No:</label>
-                    <input type="text" id="buyerOrderNo" placeholder="Enter order number">
+                    <input
+                        type="text"
+                        id="buyerOrderNo"
+                        placeholder="Enter order number">
                 </div>
             </div>
-            <div class="new-customer-actions" id="newCustomerActions">
-                <button type="button" class="btn" onclick="saveNewCustomer()">Save Customer</button>
-                <button type="button" class="btn btn-secondary" onclick="cancelNewCustomer()">Cancel</button>
+
+            <!-- Hidden during normal invoicing.
+                 Shown only while adding a new customer. -->
+            <div class="customer-editor" id="customerEditor">
+                <h4>Add New Customer</h4>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Buyer Name:</label>
+                        <input
+                            type="text"
+                            id="buyerName"
+                            placeholder="Enter buyer name">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Buyer Address:</label>
+                        <input
+                            type="text"
+                            id="buyerAddress"
+                            placeholder="Enter buyer address">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Buyer GSTIN:</label>
+                        <input
+                            type="text"
+                            id="buyerGstin"
+                            placeholder="Enter GSTIN"
+                            maxlength="15">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Buyer State Code:</label>
+                        <input
+                            type="text"
+                            id="buyerStateCode"
+                            value="24"
+                            maxlength="2"
+                            inputmode="numeric"
+                            placeholder="e.g. 24">
+                    </div>
+                </div>
+
+                <div class="new-customer-actions">
+                    <button
+                        type="button"
+                        class="btn"
+                        onclick="saveNewCustomer()">
+                        Save Customer
+                    </button>
+
+                    <button
+                        type="button"
+                        class="btn btn-secondary"
+                        onclick="cancelNewCustomer()">
+                        Cancel
+                    </button>
+                </div>
             </div>
         </div>
 
@@ -774,7 +904,7 @@
 
             <button class="btn" onclick="addNewRow()">+ Add Item</button>
             <button class="btn" onclick="generateInvoice()">Generate Preview</button>
-            <button class="btn" id="downloadBtn" onclick="downloadPDF()" style="display: none;">Download PDF</button>
+            <button class="btn" id="downloadBtn" onclick="downloadPDF()" style="display: none;">Print / Save PDF</button>
         </div>
 
         <div class="invoice-preview" id="invoicePreview">
@@ -857,28 +987,35 @@
             document.getElementById('buyerStateCode').value = customer.state_code || '24';
         }
 
-        function clearBuyerFields() {
+        function clearCustomerFields() {
             document.getElementById('buyerName').value = '';
             document.getElementById('buyerAddress').value = '';
             document.getElementById('buyerGstin').value = '';
             document.getElementById('buyerStateCode').value = '24';
-            document.getElementById('buyerOrderNo').value = '';
+        }
+
+        function setCustomerEditorVisible(visible) {
+            document
+                .getElementById('customerEditor')
+                .classList.toggle('visible', visible);
         }
 
         function onCustomerSelect() {
-            if (isNewCustomerMode) {
-                cancelNewCustomer();
-            }
+            isNewCustomerMode = false;
+            setCustomerEditorVisible(false);
 
             const select = document.getElementById('customerSelect');
             const customerId = select.value;
 
             if (!customerId) {
-                clearBuyerFields();
+                clearCustomerFields();
                 return;
             }
 
-            const customer = savedCustomers.find(c => String(c.id) === String(customerId));
+            const customer = savedCustomers.find(
+                c => String(c.id) === String(customerId)
+            );
+
             if (customer) {
                 fillBuyerFields(customer);
             }
@@ -886,22 +1023,39 @@
 
         function startNewCustomer() {
             isNewCustomerMode = true;
+
             document.getElementById('customerSelect').value = '';
-            clearBuyerFields();
-            document.getElementById('newCustomerActions').classList.add('visible');
+            clearCustomerFields();
+            setCustomerEditorVisible(true);
+
             document.getElementById('buyerName').focus();
         }
 
         function cancelNewCustomer() {
             isNewCustomerMode = false;
-            document.getElementById('newCustomerActions').classList.remove('visible');
+            setCustomerEditorVisible(false);
+
+            const selectedId = document.getElementById('customerSelect').value;
+
+            if (selectedId) {
+                const customer = savedCustomers.find(
+                    c => String(c.id) === String(selectedId)
+                );
+
+                if (customer) {
+                    fillBuyerFields(customer);
+                }
+            } else {
+                clearCustomerFields();
+            }
         }
 
         async function saveNewCustomer() {
             const name = document.getElementById('buyerName').value.trim();
             const address = document.getElementById('buyerAddress').value.trim();
-            const gstin = document.getElementById('buyerGstin').value.trim();
-            const stateCode = document.getElementById('buyerStateCode').value.trim() || '24';
+            const gstin = document.getElementById('buyerGstin').value.trim().toUpperCase();
+            const stateCode =
+                document.getElementById('buyerStateCode').value.trim() || '24';
 
             if (!name) {
                 showNotification('Customer name is required to save.', 'error');
@@ -909,7 +1063,10 @@
             }
 
             if (!/^\d{2}$/.test(stateCode)) {
-                showNotification('Buyer state code must be exactly 2 digits.', 'error');
+                showNotification(
+                    'Buyer state code must be exactly 2 digits.',
+                    'error'
+                );
                 return;
             }
 
@@ -918,7 +1075,9 @@
 
                 const response = await fetch(`${API_BASE}/api/customers`, {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
                     body: JSON.stringify({
                         name,
                         address,
@@ -930,21 +1089,34 @@
                 const data = await response.json();
 
                 if (!response.ok || !data.success) {
-                    throw new Error(data.error || 'Failed to save customer');
+                    throw new Error(
+                        data.error || 'Failed to save customer'
+                    );
                 }
 
                 savedCustomers.push(data.customer);
-                savedCustomers.sort((a, b) => a.name.localeCompare(b.name));
+
+                savedCustomers.sort((a, b) =>
+                    a.name.localeCompare(b.name)
+                );
 
                 isNewCustomerMode = false;
-                document.getElementById('newCustomerActions').classList.remove('visible');
+
                 populateCustomerSelect(data.customer.id);
                 fillBuyerFields(data.customer);
+                setCustomerEditorVisible(false);
 
-                showNotification(`Customer "${data.customer.name}" saved successfully!`, 'success');
+                showNotification(
+                    `Customer "${data.customer.name}" saved successfully!`,
+                    'success'
+                );
             } catch (error) {
                 console.error('Failed to save customer:', error);
-                showNotification(error.message || 'Unable to save customer.', 'error');
+
+                showNotification(
+                    error.message || 'Unable to save customer.',
+                    'error'
+                );
             }
         }
 
@@ -1515,86 +1687,37 @@
             console.log('Invoice preview generated');
         }
 
-        // Download PDF (exact preview capture)
-        async function downloadPDF() {
-            console.log('Starting PDF download...');
+        function downloadPDF() {
+            console.log('Opening printable invoice...');
+
             if (!validateInvoiceData()) {
                 return;
             }
-            showNotification('Generating PDF...', 'info');
-            try {
-                const { jsPDF } = window.jspdf;
-                const element = document.getElementById('invoiceContent');
 
-                // Ensure white background for canvas
-                const canvas = await html2canvas(element, {
-                    scale: 3,
-                    useCORS: true,
-                    backgroundColor: '#ffffff'
-                });
+            // Make sure the preview contains the latest values.
+            generateInvoice();
 
-                const imgData = canvas.toDataURL('image/png');
-                const pdf = new jsPDF('p', 'mm', 'a4');
-                const pageWidth = pdf.internal.pageSize.getWidth();
-                const pageHeight = pdf.internal.pageSize.getHeight();
+            const invoiceNo =
+                document.getElementById('invoiceNo').value || '1';
 
-                // Fit image to minimize bottom whitespace: prefer height fit, keep margins, align to top
-                const margin = 4; // mm
-                const maxW = pageWidth - margin * 2;
-                const maxH = pageHeight - margin * 2;
+            const buyerName =
+                document.getElementById('buyerName').value || 'BUYER_NAME';
 
-                // Start by fitting to width
-                let imgWidth = maxW;
-                let imgHeight = (canvas.height * imgWidth) / canvas.width;
+            const cleanBuyerName = buyerName
+                .replace(/[^\w\s]/gi, '')
+                .replace(/\s+/g, '_');
 
-                // If there is extra bottom space, try fitting to height without overflowing width
-                if (imgHeight < maxH) {
-                    let tryHeight = maxH;
-                    let tryWidth = (canvas.width * tryHeight) / canvas.height;
-                    if (tryWidth <= maxW) {
-                        imgHeight = tryHeight;
-                        imgWidth = tryWidth;
-                    }
-                }
+            const oldTitle = document.title;
 
-                const x = (pageWidth - imgWidth) / 2; // center horizontally
-                const y = margin; // align content to top to remove bottom gap
-                pdf.addImage(imgData, 'PNG', x, y, imgWidth, imgHeight, undefined, 'FAST');
+            // Chrome usually uses the page title as the suggested PDF filename.
+            document.title =
+                `${cleanBuyerName}_(Invoice_${invoiceNo})`;
 
-                // Filename as before
-                const invoiceNo = document.getElementById('invoiceNo').value || '1';
-                const buyerName = document.getElementById('buyerName').value || 'BUYER_NAME';
-                const cleanBuyerName = buyerName.replace(/[^\w\s]/gi, '').replace(/\s+/g, '_');
-                const filename = `${cleanBuyerName}_(Invoice_${invoiceNo}).pdf`;
+            // Browser print-to-PDF keeps the invoice text selectable/searchable,
+            // unlike the old html2canvas screenshot approach.
+            window.print();
 
-                if (isMobileDevice()) {
-                    const blob = pdf.output('blob');
-                    const url = URL.createObjectURL(blob);
-                    const newWindow = window.open(url, '_blank');
-                    if (!newWindow) {
-                        const link = document.createElement('a');
-                        link.href = url;
-                        link.download = filename;
-                        link.style.display = 'none';
-                        document.body.appendChild(link);
-                        link.click();
-                        document.body.removeChild(link);
-                    }
-                    showNotification('📱 PDF ready. Save from the new tab.', 'success');
-                } else {
-                    pdf.save(filename);
-                    showNotification('💻 PDF downloaded successfully!', 'success');
-                }
-
-                // Auto increment invoice number
-                const currentInvoiceNo = parseInt(document.getElementById('invoiceNo').value);
-                document.getElementById('invoiceNo').value = currentInvoiceNo + 1;
-
-                console.log('PDF download completed');
-            } catch (error) {
-                console.error('PDF generation error:', error);
-                showNotification('Failed to generate PDF: ' + error.message, 'error');
-            }
+            document.title = oldTitle;
         }
 
         // Convert number to words
