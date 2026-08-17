@@ -915,6 +915,8 @@ textarea[aria-invalid="true"] {
   min-height: 297mm;
   margin: 0 auto;
   padding: 10mm;
+  display: flex;
+  flex-direction: column;
   color: #111;
   background: #fff;
   font-family: Arial, Helvetica, sans-serif;
@@ -946,17 +948,25 @@ textarea[aria-invalid="true"] {
 .invoice-grid-2 {
   margin-top: 8px;
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   gap: 7px;
+  align-items: stretch;
 }
 
 .invoice-box {
+  min-width: 0;
+  overflow: hidden;
   display: flex;
   align-self: stretch;
-  overflow: hidden;
   border: 1px solid #111;
+  background: #fff;
 }
 
+/*
+  A grid row stretches both invoice boxes to the same height.
+  The table must also fill that stretched box; otherwise the inner
+  vertical divider stops early and looks misaligned.
+*/
 .invoice-kv {
   width: 100%;
   height: 100%;
@@ -964,10 +974,19 @@ textarea[aria-invalid="true"] {
   border-collapse: collapse;
 }
 
+.invoice-kv tbody {
+  height: 100%;
+}
+
+.invoice-kv tr:only-child {
+  height: 100%;
+}
+
 .invoice-kv td {
-  padding: 5px 6px;
+  padding: 6px 8px;
   border-bottom: 1px solid #111;
   vertical-align: top;
+  line-height: 1.38;
 }
 
 .invoice-kv tr:last-child td {
@@ -979,14 +998,95 @@ textarea[aria-invalid="true"] {
 }
 
 .invoice-kv__label {
-  width: 40%;
+  width: 38%;
   font-weight: 700;
   background: #f7f7f7;
 }
 
+.invoice-kv td:not(.invoice-kv__label) {
+  overflow-wrap: anywhere;
+  word-break: normal;
+}
+
+.invoice-buyer-card {
+  margin-top: 8px;
+  display: grid;
+  grid-template-columns: minmax(0, 1.85fr) minmax(190px, 0.65fr);
+  border: 1px solid #111;
+  background: #fff;
+}
+
+.invoice-buyer-main {
+  min-width: 0;
+  padding: 8px 10px 9px;
+}
+
+.invoice-section-caption {
+  margin-bottom: 5px;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.045em;
+  text-transform: uppercase;
+}
+
+.invoice-buyer-name {
+  font-size: 12.5px;
+  font-weight: 800;
+  line-height: 1.3;
+}
+
+.invoice-buyer-address {
+  max-width: 96%;
+  margin-top: 4px;
+  line-height: 1.45;
+}
+
+.invoice-buyer-meta {
+  border-left: 1px solid #111;
+}
+
+.invoice-buyer-meta-row {
+  min-height: 36px;
+  display: grid;
+  grid-template-columns: 86px minmax(0, 1fr);
+  align-items: stretch;
+}
+
+.invoice-buyer-meta-row + .invoice-buyer-meta-row {
+  border-top: 1px solid #111;
+}
+
+.invoice-buyer-meta-row span,
+.invoice-buyer-meta-row strong {
+  padding: 7px 8px;
+}
+
+.invoice-buyer-meta-row span {
+  display: flex;
+  align-items: center;
+  font-weight: 700;
+  background: #f7f7f7;
+}
+
+.invoice-buyer-meta-row strong {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+
+.invoice-items-section {
+  flex: 1 1 72mm;
+  min-height: 72mm;
+  margin-top: 8px;
+  display: flex;
+  flex-direction: column;
+}
+
 .invoice-items {
   width: 100%;
-  margin-top: 8px;
+  margin: 0;
   border-collapse: collapse;
 }
 
@@ -1006,21 +1106,63 @@ textarea[aria-invalid="true"] {
   text-align: left;
 }
 
-.invoice-totals {
+.invoice-items-fill {
+  flex: 1 1 auto;
+  min-height: 26mm;
+  border: 1px solid #111;
+  border-top: 0;
+  background: #fff;
+}
+
+.invoice-settlement {
   margin-top: 8px;
   display: grid;
   grid-template-columns: minmax(0, 1fr) 285px;
   gap: 7px;
+  align-items: stretch;
 }
 
-.invoice-empty-box {
-  min-height: 112px;
+.invoice-bank-box,
+.invoice-total-box {
   border: 1px solid #111;
+  background: #fff;
+}
+
+.invoice-bank-box {
+  display: grid;
+  grid-template-columns: 112px minmax(0, 1fr);
+}
+
+.invoice-bank-label {
+  padding: 8px 9px;
+  font-weight: 800;
+  background: #f7f7f7;
+  border-right: 1px solid #111;
+}
+
+.invoice-bank-content {
+  padding: 7px 9px;
+  line-height: 1.42;
+}
+
+.invoice-bank-line {
+  display: grid;
+  grid-template-columns: 92px minmax(0, 1fr);
+  gap: 8px;
+}
+
+.invoice-bank-line span {
+  font-weight: 700;
+}
+
+.invoice-bank-line strong {
+  min-width: 0;
+  font-weight: 500;
+  overflow-wrap: anywhere;
 }
 
 .invoice-total-box {
   padding: 7px 8px;
-  border: 1px solid #111;
 }
 
 .invoice-total-line {
@@ -1386,10 +1528,16 @@ textarea[aria-invalid="true"] {
   }
 
   #printRoot .invoice-grid-2,
-  #printRoot .invoice-totals,
+  #printRoot .invoice-buyer-card,
+  #printRoot .invoice-settlement,
   #printRoot .invoice-note-box,
   #printRoot .invoice-signature {
     break-inside: avoid;
+  }
+
+  #printRoot .invoice-items-section {
+    flex: 1 1 72mm !important;
+    min-height: 72mm !important;
   }
 
   #printRoot .invoice-items thead {

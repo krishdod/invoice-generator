@@ -712,35 +712,56 @@
         ])}
       </div>
 
-      <div class="invoice-grid-2">
-        ${invoiceKvBox([
-          ["Buyer Details", `<strong>${escapeHtml(customer.name)}</strong><br>${escapeHtml(customer.address || "")}`],
-          ["State Code", escapeHtml(customer.state_code || "")],
-          ["GSTIN/UID", escapeHtml(customer.gstin || "-")]
-        ], true)}
-        ${invoiceKvBox([
-          ["Bank Details", `${SELLER.bank}<br>ACCOUNT NO.: ${SELLER.account}<br>IFSC CODE: ${SELLER.ifsc}<br>CONTACT NO.: ${SELLER.contact}<br>ONLINE PAYMENT AVAILABLE`]
-        ], true)}
-      </div>
+      <section class="invoice-buyer-card">
+        <div class="invoice-buyer-main">
+          <div class="invoice-section-caption">Buyer Details</div>
+          <div class="invoice-buyer-name">${escapeHtml(customer.name)}</div>
+          <div class="invoice-buyer-address">${escapeHtml(customer.address || "")}</div>
+        </div>
 
-      <table class="invoice-items">
-        <thead>
-          <tr>
-            <th>SR.NO</th>
-            <th>Description of Goods</th>
-            <th>Size (MM)</th>
-            <th>HSN/SAC Code</th>
-            <th>Quantity</th>
-            <th>Rate</th>
-            <th>Unit</th>
-            <th>Amount</th>
-          </tr>
-        </thead>
-        <tbody>${itemRows}</tbody>
-      </table>
+        <div class="invoice-buyer-meta">
+          <div class="invoice-buyer-meta-row">
+            <span>State Code</span>
+            <strong>${escapeHtml(customer.state_code || "-")}</strong>
+          </div>
+          <div class="invoice-buyer-meta-row">
+            <span>GSTIN/UID</span>
+            <strong>${escapeHtml(customer.gstin || "-")}</strong>
+          </div>
+        </div>
+      </section>
 
-      <div class="invoice-totals">
-        <div class="invoice-empty-box"></div>
+      <section class="invoice-items-section">
+        <table class="invoice-items">
+          <thead>
+            <tr>
+              <th>SR.NO</th>
+              <th>Description of Goods</th>
+              <th>Size (MM)</th>
+              <th>HSN/SAC Code</th>
+              <th>Quantity</th>
+              <th>Rate</th>
+              <th>Unit</th>
+              <th>Amount</th>
+            </tr>
+          </thead>
+          <tbody>${itemRows}</tbody>
+        </table>
+        <div class="invoice-items-fill" aria-hidden="true"></div>
+      </section>
+
+      <div class="invoice-settlement">
+        <div class="invoice-bank-box">
+          <div class="invoice-bank-label">Bank Details</div>
+          <div class="invoice-bank-content">
+            <div>${SELLER.bank}</div>
+            <div class="invoice-bank-line"><span>Account No.</span><strong>${SELLER.account}</strong></div>
+            <div class="invoice-bank-line"><span>IFSC Code</span><strong>${SELLER.ifsc}</strong></div>
+            <div class="invoice-bank-line"><span>Contact No.</span><strong>${SELLER.contact}</strong></div>
+            <div>ONLINE PAYMENT AVAILABLE</div>
+          </div>
+        </div>
+
         <div class="invoice-total-box">
           ${invoiceTotalLine("Subtotal", state.totals.subtotal)}
           ${state.totals.freight > 0 ? invoiceTotalLine("Freight", state.totals.freight) : ""}
