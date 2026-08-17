@@ -1071,6 +1071,8 @@ textarea[aria-invalid="true"] {
   font-style: italic;
 }
 
+.print-root { display: none; }
+
 .toast-region {
   position: fixed;
   right: 20px;
@@ -1332,8 +1334,8 @@ textarea[aria-invalid="true"] {
 
 @media print {
   @page {
-    size: A4;
-    margin: 5mm;
+    size: A4 portrait;
+    margin: 8mm;
   }
 
   html,
@@ -1347,47 +1349,60 @@ textarea[aria-invalid="true"] {
     display: none !important;
   }
 
-  #previewDialog {
+  #printRoot {
     display: block !important;
-    position: static !important;
-    width: auto !important;
-    max-width: none !important;
-    max-height: none !important;
+    width: 100% !important;
     margin: 0 !important;
     padding: 0 !important;
     background: #fff !important;
   }
 
-  #previewDialog::backdrop,
-  .preview-toolbar {
-    display: none !important;
-  }
-
-  .preview-dialog__surface,
-  .preview-canvas {
-    display: block !important;
-    overflow: visible !important;
-    max-height: none !important;
+  #printRoot .invoice-document {
+    width: 100% !important;
+    min-height: 281mm !important;
+    margin: 0 !important;
     padding: 0 !important;
-    background: #fff !important;
-    box-shadow: none !important;
-  }
-
-  .invoice-document {
-    width: 200mm !important;
-    min-height: 0 !important;
-    margin: 0 auto !important;
-    padding: 5mm !important;
+    display: flex !important;
+    flex-direction: column !important;
+    overflow: visible !important;
     box-shadow: none !important;
     transform: none !important;
+    color: #000 !important;
+    background: #fff !important;
     font-size: 10.5px !important;
+    line-height: 1.32 !important;
   }
 
-  .invoice-company {
+  #printRoot .invoice-title {
+    font-size: 18px !important;
+  }
+
+  #printRoot .invoice-company {
     font-size: 21px !important;
   }
 
-  .invoice-title {
-    font-size: 18px !important;
+  #printRoot .invoice-grid-2,
+  #printRoot .invoice-totals,
+  #printRoot .invoice-note-box,
+  #printRoot .invoice-signature {
+    break-inside: avoid;
+  }
+
+  #printRoot .invoice-items thead {
+    display: table-header-group;
+  }
+
+  #printRoot .invoice-items tr {
+    break-inside: avoid;
+  }
+
+  #printRoot .invoice-signature {
+    margin-top: auto !important;
+    padding-top: 8mm !important;
+  }
+
+  #printRoot .invoice-footer {
+    margin-top: 7mm !important;
+    padding-top: 4mm !important;
   }
 }

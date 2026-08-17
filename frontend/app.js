@@ -92,6 +92,7 @@
       "previewPrintButton",
       "closePreviewButton",
       "invoiceContent",
+      "printRoot",
       "toastRegion"
     ].forEach((id) => {
       els[id] = document.getElementById(id);
@@ -683,7 +684,7 @@
       `;
     }).join("");
 
-    els.invoiceContent.innerHTML = `
+    const invoiceMarkup = `
       <header>
         <div class="invoice-title">TAX INVOICE</div>
         <div class="invoice-company">${SELLER.name}</div>
@@ -772,6 +773,9 @@
 
       <div class="invoice-footer">This is computer generated Invoice.</div>
     `;
+
+    els.invoiceContent.innerHTML = invoiceMarkup;
+    els.printRoot.innerHTML = `<article class="invoice-document">${invoiceMarkup}</article>`;
   }
 
   function invoiceKvBox(rows, allowHtml = false) {
