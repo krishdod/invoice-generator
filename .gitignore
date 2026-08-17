@@ -1,65 +1,23 @@
-# Python
-__pycache__/
-*.py[cod]
-*$py.class
-*.so
-.Python
-build/
-develop-eggs/
-dist/
-downloads/
-eggs/
-.eggs/
-lib/
-lib64/
-parts/
-sdist/
-var/
-wheels/
-*.egg-info/
-.installed.cfg
-*.egg
-MANIFEST
-
-# Virtual Environment
-venv/
-env/
-ENV/
-
-# Google Credentials - NEVER COMMIT THESE!
-backend/config/credentials.json
-backend/config/token.json
-
-# Temporary files
-data/temp/
-*.tmp
-*.log
-
-# OS generated files
+# OS
 .DS_Store
-.DS_Store?
-._*
-.Spotlight-V100
-.Trashes
-ehthumbs.db
 Thumbs.db
+Desktop.ini
 
-# IDE files
+# Editor
 .vscode/
 .idea/
 *.swp
 *.swo
 
-# Node modules (if any)
-node_modules/
+# Secrets and local environment
+.env
+.env.*
+.dev.vars
 
-# Environment variables
-.env
-.env.local
-.env.production
-.vercel
+# Dependencies and local tooling
 node_modules/
-.env
-.vscode/
-.DS_Store
+.wrangler/
+
+# Logs and temp
 *.log
+*.tmp
