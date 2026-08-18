@@ -1966,6 +1966,21 @@ textarea[aria-invalid="true"] {
 
 
 /* =========================================================
+   RIGHT-MOST OUTER EDGE
+   Match visual weight of the left rules (0.75pt can
+   snap thinner on the right at some zoom/PDF scales).
+   ========================================================= */
+
+.invoice-grid-2 > .invoice-box:last-child,
+.invoice-buyer-card,
+.invoice-items-section,
+.invoice-settlement > .invoice-total-box,
+.invoice-note-box {
+  border-right-width: var(--invoice-rule-strong);
+}
+
+
+/* =========================================================
    JCF FINAL PRODUCTION PRINT
    ========================================================= */
 
