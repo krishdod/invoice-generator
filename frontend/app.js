@@ -618,33 +618,49 @@
 
     buildInvoiceDocument();
 
-    // Close the preview modal first. An open <dialog> lives in Chrome's
-    // top layer and can still appear in the print output.
+    // Print only the dedicated print document.
+    // Close preview first so it leaves the browser top layer.
     if (els.previewDialog.open) {
       els.previewDialog.close();
     }
 
     const previousTitle = document.title;
     const customer = getSelectedCustomer();
-    const invoiceNo = sanitizeFilenamePart(els.invoiceNo.value.trim() || "invoice");
-    const buyerName = sanitizeFilenamePart(customer?.name || "customer");
 
-    document.title = `${buyerName}_(Invoice_${invoiceNo})`;
+    const invoiceNo =
+      sanitizeFilenamePart(
+        els.invoiceNo.value.trim() || "invoice"
+      );
+
+    const buyerName =
+      sanitizeFilenamePart(
+        customer?.name || "customer"
+      );
+
+    document.title =
+      `${buyerName}_(Invoice_${invoiceNo})`;
 
     const restoreTitle = () => {
       document.title = previousTitle;
-      window.removeEventListener("afterprint", restoreTitle);
+
+      window.removeEventListener(
+        "afterprint",
+        restoreTitle
+      );
     };
 
-    window.addEventListener("afterprint", restoreTitle);
+    window.addEventListener(
+      "afterprint",
+      restoreTitle
+    );
 
-    window.requestAnimationFrame(() => {
-      window.print();
+    window.print();
 
-      window.setTimeout(() => {
-        if (document.title !== previousTitle) restoreTitle();
-      }, 1500);
-    });
+    window.setTimeout(() => {
+      if (document.title !== previousTitle) {
+        restoreTitle();
+      }
+    }, 1500);
   }
 
   function scalePreviewForSmallScreen() {

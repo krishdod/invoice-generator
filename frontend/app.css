@@ -1966,7 +1966,7 @@ textarea[aria-invalid="true"] {
 
 
 /* =========================================================
-   JCF - FINAL PRODUCTION PRINT RULES
+   JCF FINAL PRODUCTION PRINT
    ========================================================= */
 
 @media print {
@@ -1978,41 +1978,34 @@ textarea[aria-invalid="true"] {
 
   html,
   body {
-    margin: 0 !important;
-    padding: 0 !important;
-
     width: auto !important;
     min-width: 0 !important;
 
-    background: #fff !important;
+    margin: 0 !important;
+    padding: 0 !important;
+
     overflow: visible !important;
+
+    background: #fff !important;
   }
 
 
-  /* =======================================================
-     CRITICAL:
-     Hide the ENTIRE website when printing.
-     Only #printRoot is allowed to print.
-     ======================================================= */
-
-  body > :not(#printRoot) {
-    display: none !important;
-  }
-
-  dialog,
-  dialog::backdrop,
-  #previewDialog,
-  .preview-dialog,
-  .preview-toolbar {
+  /*
+   * CRITICAL
+   *
+   * Hide every normal website element:
+   * header, form, preview dialog, buttons, summary, etc.
+   */
+  body > * {
     display: none !important;
   }
 
 
-  /* =======================================================
-     PRINT ROOT
-     ======================================================= */
-
-  #printRoot {
+  /*
+   * Then explicitly restore ONLY our dedicated
+   * printable invoice.
+   */
+  body > #printRoot {
     display: block !important;
 
     position: static !important;
@@ -2023,19 +2016,20 @@ textarea[aria-invalid="true"] {
     margin: 0 !important;
     padding: 0 !important;
 
-    background: #fff !important;
-
     overflow: visible !important;
+
+    background: #fff !important;
   }
 
 
-  /* =======================================================
-     A4 INVOICE
-     A4 = 297mm tall
-     8mm top + 8mm bottom margins
-     usable height = 281mm
-     ======================================================= */
-
+  /*
+   * A4 printable area:
+   *
+   * 297mm height
+   * - 8mm top
+   * - 8mm bottom
+   * = 281mm
+   */
   #printRoot .invoice-document {
     width: 100% !important;
     min-height: 281mm !important;
@@ -2046,25 +2040,25 @@ textarea[aria-invalid="true"] {
     display: flex !important;
     flex-direction: column !important;
 
+    overflow: visible !important;
+
     background: #fff !important;
 
     box-shadow: none !important;
     transform: none !important;
 
-    overflow: visible !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
   }
 
 
-  /* Every invoice element respects its actual width */
   #printRoot .invoice-document,
   #printRoot .invoice-document * {
     box-sizing: border-box !important;
   }
 
 
-  /* =======================================================
-     FULL-WIDTH SECTIONS
-     ======================================================= */
+  /* ---------- invoice width ---------- */
 
   #printRoot .invoice-grid-2,
   #printRoot .invoice-buyer-card,
@@ -2077,15 +2071,7 @@ textarea[aria-invalid="true"] {
   }
 
 
-  /* =======================================================
-     ITEMS AREA
-
-     One/few items:
-     expands to use the remaining first page.
-
-     More items:
-     grows naturally and additional pages are created.
-     ======================================================= */
+  /* ---------- item table ---------- */
 
   #printRoot .invoice-items-section {
     flex: 1 1 72mm !important;
@@ -2097,21 +2083,19 @@ textarea[aria-invalid="true"] {
     table-layout: fixed !important;
   }
 
-  /* Repeat table headings on additional pages */
+  /* Repeat headings if invoice requires page 2 */
   #printRoot .invoice-items thead {
     display: table-header-group !important;
   }
 
-  /* Never cut a single item row in half */
+  /* Never split one item row */
   #printRoot .invoice-items tr {
     break-inside: avoid !important;
     page-break-inside: avoid !important;
   }
 
 
-  /* =======================================================
-     KEEP IMPORTANT BLOCKS TOGETHER
-     ======================================================= */
+  /* ---------- keep business blocks together ---------- */
 
   #printRoot .invoice-buyer-card,
   #printRoot .invoice-settlement,
@@ -2119,15 +2103,5 @@ textarea[aria-invalid="true"] {
   #printRoot .invoice-signature {
     break-inside: avoid !important;
     page-break-inside: avoid !important;
-  }
-
-
-  /* =======================================================
-     CLEAN PDF OUTPUT
-     ======================================================= */
-
-  #printRoot .invoice-document {
-    -webkit-print-color-adjust: exact;
-    print-color-adjust: exact;
   }
 }
