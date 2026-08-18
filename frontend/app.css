@@ -1981,6 +1981,161 @@ textarea[aria-invalid="true"] {
 
 
 /* =========================================================
+   JCF - PROFESSIONAL INVOICE ITEM TABLE
+   ========================================================= */
+
+.invoice-items {
+  width: 100%;
+  margin: 0;
+
+  table-layout: fixed;
+  border-collapse: collapse;
+  border-spacing: 0;
+
+  font-size: 10px;
+}
+
+
+/* ---------------------------------------------------------
+   COLUMN WIDTHS
+   Total = 100%
+   --------------------------------------------------------- */
+
+/* SR.NO */
+.invoice-items th:nth-child(1),
+.invoice-items td:nth-child(1) {
+  width: 7%;
+}
+
+/* Description */
+.invoice-items th:nth-child(2),
+.invoice-items td:nth-child(2) {
+  width: 29%;
+}
+
+/* Size */
+.invoice-items th:nth-child(3),
+.invoice-items td:nth-child(3) {
+  width: 9%;
+}
+
+/* HSN/SAC */
+.invoice-items th:nth-child(4),
+.invoice-items td:nth-child(4) {
+  width: 12%;
+}
+
+/* Quantity */
+.invoice-items th:nth-child(5),
+.invoice-items td:nth-child(5) {
+  width: 10%;
+}
+
+/* Rate */
+.invoice-items th:nth-child(6),
+.invoice-items td:nth-child(6) {
+  width: 10%;
+}
+
+/* Unit */
+.invoice-items th:nth-child(7),
+.invoice-items td:nth-child(7) {
+  width: 8%;
+}
+
+/* Amount */
+.invoice-items th:nth-child(8),
+.invoice-items td:nth-child(8) {
+  width: 15%;
+}
+
+
+/* ---------------------------------------------------------
+   HEADER
+   --------------------------------------------------------- */
+
+.invoice-items th {
+  height: 40px;
+  padding: 5px 4px;
+
+  font-size: 9px;
+  line-height: 1.2;
+  font-weight: 700;
+
+  text-align: center;
+  vertical-align: middle;
+
+  background: #f5f5f5;
+}
+
+
+/* ---------------------------------------------------------
+   ITEM ROW
+   --------------------------------------------------------- */
+
+.invoice-items td {
+  min-height: 42px;
+  padding: 7px 5px;
+
+  font-size: 10px;
+  line-height: 1.25;
+
+  vertical-align: middle;
+}
+
+
+/* Description gets the space and alignment it deserves */
+.invoice-items td:nth-child(2) {
+  padding-left: 8px;
+  padding-right: 8px;
+
+  text-align: left;
+
+  font-weight: 500;
+
+  overflow-wrap: normal;
+  word-break: normal;
+}
+
+
+/* All short numeric/data columns stay visually clean */
+.invoice-items td:nth-child(1),
+.invoice-items td:nth-child(3),
+.invoice-items td:nth-child(4),
+.invoice-items td:nth-child(5),
+.invoice-items td:nth-child(6),
+.invoice-items td:nth-child(7),
+.invoice-items td:nth-child(8) {
+  white-space: nowrap;
+}
+
+
+/* Quantity */
+.invoice-items td:nth-child(5) {
+  font-variant-numeric: tabular-nums;
+}
+
+
+/* Rate */
+.invoice-items td:nth-child(6) {
+  text-align: right;
+  padding-right: 8px;
+
+  font-variant-numeric: tabular-nums;
+}
+
+
+/* Amount */
+.invoice-items td:nth-child(8) {
+  text-align: right;
+  padding-right: 8px;
+
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+
+/* =========================================================
    JCF FINAL PRODUCTION PRINT
    ========================================================= */
 
@@ -2100,8 +2255,16 @@ textarea[aria-invalid="true"] {
   }
 
   #printRoot .invoice-items {
-    width: 100% !important;
     table-layout: fixed !important;
+    width: 100% !important;
+  }
+
+  #printRoot .invoice-items th {
+    font-size: 9px !important;
+  }
+
+  #printRoot .invoice-items td {
+    font-size: 10px !important;
   }
 
   /* Repeat headings if invoice requires page 2 */
