@@ -618,6 +618,12 @@
 
     buildInvoiceDocument();
 
+    // Close the preview modal first. An open <dialog> lives in Chrome's
+    // top layer and can still appear in the print output.
+    if (els.previewDialog.open) {
+      els.previewDialog.close();
+    }
+
     const previousTitle = document.title;
     const customer = getSelectedCustomer();
     const invoiceNo = sanitizeFilenamePart(els.invoiceNo.value.trim() || "invoice");
@@ -631,11 +637,14 @@
     };
 
     window.addEventListener("afterprint", restoreTitle);
-    window.print();
 
-    window.setTimeout(() => {
-      if (document.title !== previousTitle) restoreTitle();
-    }, 1500);
+    window.requestAnimationFrame(() => {
+      window.print();
+
+      window.setTimeout(() => {
+        if (document.title !== previousTitle) restoreTitle();
+      }, 1500);
+    });
   }
 
   function scalePreviewForSmallScreen() {

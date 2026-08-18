@@ -1999,6 +1999,14 @@ textarea[aria-invalid="true"] {
     display: none !important;
   }
 
+  dialog,
+  dialog::backdrop,
+  #previewDialog,
+  .preview-dialog,
+  .preview-toolbar {
+    display: none !important;
+  }
+
 
   /* =======================================================
      PRINT ROOT
