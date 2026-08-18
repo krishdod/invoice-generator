@@ -618,49 +618,76 @@
 
     buildInvoiceDocument();
 
-    // Print only the dedicated print document.
-    // Close preview first so it leaves the browser top layer.
     if (els.previewDialog.open) {
       els.previewDialog.close();
     }
 
     const previousTitle = document.title;
     const customer = getSelectedCustomer();
+    const invoiceNo = sanitizeFilenamePart(els.invoiceNo.value.trim() || "invoice");
+    const buyerName = sanitizeFilenamePart(customer?.name || "customer");
+    const printTitle = `${buyerName}_(Invoice_${invoiceNo})`;
 
-    const invoiceNo =
-      sanitizeFilenamePart(
-        els.invoiceNo.value.trim() || "invoice"
-      );
+    document.title = printTitle;
 
-    const buyerName =
-      sanitizeFilenamePart(
-        customer?.name || "customer"
-      );
+    const stylesheetHref = new URL("/app.css", window.location.href).href;
+    const invoiceHtml = els.printRoot.innerHTML;
 
-    document.title =
-      `${buyerName}_(Invoice_${invoiceNo})`;
+    const iframe = document.createElement("iframe");
+    iframe.setAttribute("aria-hidden", "true");
+    iframe.setAttribute("tabindex", "-1");
+    iframe.style.cssText =
+      "position:fixed;right:0;bottom:0;width:0;height:0;border:0;visibility:hidden";
 
-    const restoreTitle = () => {
+    document.body.appendChild(iframe);
+
+    const printWindow = iframe.contentWindow;
+    const printDoc = iframe.contentDocument;
+
+    printDoc.open();
+    printDoc.write(`<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>${escapeHtml(printTitle)}</title>
+  <link rel="stylesheet" href="${stylesheetHref}">
+</head>
+<body>
+  <div id="printRoot">${invoiceHtml}</div>
+</body>
+</html>`);
+    printDoc.close();
+
+    let finished = false;
+    let printed = false;
+
+    const finish = () => {
+      if (finished) return;
+      finished = true;
+
       document.title = previousTitle;
-
-      window.removeEventListener(
-        "afterprint",
-        restoreTitle
-      );
+      iframe.remove();
     };
 
-    window.addEventListener(
-      "afterprint",
-      restoreTitle
-    );
+    const runPrint = () => {
+      if (finished || printed) return;
+      printed = true;
 
-    window.print();
+      printWindow.focus();
+      printWindow.addEventListener("afterprint", finish, { once: true });
+      printWindow.print();
+      window.setTimeout(finish, 2000);
+    };
 
-    window.setTimeout(() => {
-      if (document.title !== previousTitle) {
-        restoreTitle();
-      }
-    }, 1500);
+    const stylesheet = printDoc.querySelector('link[rel="stylesheet"]');
+
+    if (stylesheet) {
+      stylesheet.addEventListener("load", runPrint, { once: true });
+      stylesheet.addEventListener("error", runPrint, { once: true });
+      window.setTimeout(runPrint, 900);
+    } else {
+      runPrint();
+    }
   }
 
   function scalePreviewForSmallScreen() {
