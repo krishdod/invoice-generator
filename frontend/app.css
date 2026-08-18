@@ -1484,55 +1484,6 @@ textarea[aria-invalid="true"] {
   }
 }
 
-@media print {
-  @page {
-    size: A4 portrait;
-    margin: 8mm;
-  }
-
-  html,
-  body {
-    margin: 0 !important;
-    padding: 0 !important;
-    background: #fff !important;
-  }
-
-  #printRoot {
-    display: block !important;
-    width: 100% !important;
-  }
-
-  #printRoot .invoice-document {
-    width: 100% !important;
-    min-height: 281mm !important;
-    margin: 0 !important;
-    padding: 0 !important;
-
-    display: flex !important;
-    flex-direction: column !important;
-
-    box-shadow: none !important;
-    transform: none !important;
-    overflow: visible !important;
-  }
-
-  #printRoot .invoice-grid-2,
-  #printRoot .invoice-buyer-card,
-  #printRoot .invoice-settlement,
-  #printRoot .invoice-note-box,
-  #printRoot .invoice-signature {
-    break-inside: avoid;
-  }
-
-  #printRoot .invoice-items thead {
-    display: table-header-group;
-  }
-
-  #printRoot .invoice-items tr {
-    break-inside: avoid;
-  }
-}
-
 /* =========================================================
    JCF INVOICE - FINAL PRINT/BORDER CONSISTENCY OVERRIDE
    ========================================================= */
@@ -2015,19 +1966,97 @@ textarea[aria-invalid="true"] {
 
 
 /* =========================================================
-   PRINT SAFETY
+   JCF - FINAL PRODUCTION PRINT RULES
    ========================================================= */
 
 @media print {
+
   @page {
     size: A4 portrait;
     margin: 8mm;
   }
 
+  html,
+  body {
+    margin: 0 !important;
+    padding: 0 !important;
+
+    width: auto !important;
+    min-width: 0 !important;
+
+    background: #fff !important;
+    overflow: visible !important;
+  }
+
+
+  /* =======================================================
+     CRITICAL:
+     Hide the ENTIRE website when printing.
+     Only #printRoot is allowed to print.
+     ======================================================= */
+
+  body > :not(#printRoot) {
+    display: none !important;
+  }
+
+
+  /* =======================================================
+     PRINT ROOT
+     ======================================================= */
+
+  #printRoot {
+    display: block !important;
+
+    position: static !important;
+
+    width: 100% !important;
+    max-width: none !important;
+
+    margin: 0 !important;
+    padding: 0 !important;
+
+    background: #fff !important;
+
+    overflow: visible !important;
+  }
+
+
+  /* =======================================================
+     A4 INVOICE
+     A4 = 297mm tall
+     8mm top + 8mm bottom margins
+     usable height = 281mm
+     ======================================================= */
+
   #printRoot .invoice-document {
     width: 100% !important;
     min-height: 281mm !important;
+
+    margin: 0 !important;
+    padding: 0 !important;
+
+    display: flex !important;
+    flex-direction: column !important;
+
+    background: #fff !important;
+
+    box-shadow: none !important;
+    transform: none !important;
+
+    overflow: visible !important;
   }
+
+
+  /* Every invoice element respects its actual width */
+  #printRoot .invoice-document,
+  #printRoot .invoice-document * {
+    box-sizing: border-box !important;
+  }
+
+
+  /* =======================================================
+     FULL-WIDTH SECTIONS
+     ======================================================= */
 
   #printRoot .invoice-grid-2,
   #printRoot .invoice-buyer-card,
@@ -2039,18 +2068,58 @@ textarea[aria-invalid="true"] {
     max-width: 100% !important;
   }
 
-  #printRoot .invoice-items thead {
-    display: table-header-group;
+
+  /* =======================================================
+     ITEMS AREA
+
+     One/few items:
+     expands to use the remaining first page.
+
+     More items:
+     grows naturally and additional pages are created.
+     ======================================================= */
+
+  #printRoot .invoice-items-section {
+    flex: 1 1 72mm !important;
+    min-height: 72mm !important;
   }
 
-  #printRoot .invoice-items tr {
-    break-inside: avoid;
+  #printRoot .invoice-items {
+    width: 100% !important;
+    table-layout: fixed !important;
   }
+
+  /* Repeat table headings on additional pages */
+  #printRoot .invoice-items thead {
+    display: table-header-group !important;
+  }
+
+  /* Never cut a single item row in half */
+  #printRoot .invoice-items tr {
+    break-inside: avoid !important;
+    page-break-inside: avoid !important;
+  }
+
+
+  /* =======================================================
+     KEEP IMPORTANT BLOCKS TOGETHER
+     ======================================================= */
 
   #printRoot .invoice-buyer-card,
   #printRoot .invoice-settlement,
   #printRoot .invoice-note-box,
   #printRoot .invoice-signature {
-    break-inside: avoid;
+    break-inside: avoid !important;
+    page-break-inside: avoid !important;
+  }
+
+
+  /* =======================================================
+     CLEAN PDF OUTPUT
+     ======================================================= */
+
+  #printRoot .invoice-document {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
   }
 }

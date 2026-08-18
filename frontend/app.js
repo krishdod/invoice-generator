@@ -618,10 +618,6 @@
 
     buildInvoiceDocument();
 
-    if (!els.previewDialog.open) {
-      els.previewDialog.showModal();
-    }
-
     const previousTitle = document.title;
     const customer = getSelectedCustomer();
     const invoiceNo = sanitizeFilenamePart(els.invoiceNo.value.trim() || "invoice");
