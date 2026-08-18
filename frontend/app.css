@@ -1497,16 +1497,9 @@ textarea[aria-invalid="true"] {
     background: #fff !important;
   }
 
-  body > * {
-    display: none !important;
-  }
-
   #printRoot {
     display: block !important;
     width: 100% !important;
-    margin: 0 !important;
-    padding: 0 !important;
-    background: #fff !important;
   }
 
   #printRoot .invoice-document {
@@ -1514,23 +1507,13 @@ textarea[aria-invalid="true"] {
     min-height: 281mm !important;
     margin: 0 !important;
     padding: 0 !important;
+
     display: flex !important;
     flex-direction: column !important;
-    overflow: visible !important;
+
     box-shadow: none !important;
     transform: none !important;
-    color: #000 !important;
-    background: #fff !important;
-    font-size: 10.5px !important;
-    line-height: 1.32 !important;
-  }
-
-  #printRoot .invoice-title {
-    font-size: 18px !important;
-  }
-
-  #printRoot .invoice-company {
-    font-size: 21px !important;
+    overflow: visible !important;
   }
 
   #printRoot .invoice-grid-2,
@@ -1541,26 +1524,11 @@ textarea[aria-invalid="true"] {
     break-inside: avoid;
   }
 
-  #printRoot .invoice-items-section {
-    flex: 1 1 72mm !important;
-    min-height: 72mm !important;
-  }
-
   #printRoot .invoice-items thead {
     display: table-header-group;
   }
 
   #printRoot .invoice-items tr {
     break-inside: avoid;
-  }
-
-  #printRoot .invoice-signature {
-    margin-top: auto !important;
-    padding-top: 8mm !important;
-  }
-
-  #printRoot .invoice-footer {
-    margin-top: 7mm !important;
-    padding-top: 4mm !important;
   }
 }
