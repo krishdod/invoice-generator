@@ -1011,7 +1011,7 @@ textarea[aria-invalid="true"] {
 .invoice-buyer-card {
   margin-top: 8px;
   display: grid;
-  grid-template-columns: minmax(0, 1.85fr) minmax(190px, 0.65fr);
+  grid-template-columns: minmax(0, 1fr) 225px;
   border: 1px solid #111;
   background: #fff;
 }
@@ -1048,7 +1048,7 @@ textarea[aria-invalid="true"] {
 .invoice-buyer-meta-row {
   min-height: 36px;
   display: grid;
-  grid-template-columns: 86px minmax(0, 1fr);
+  grid-template-columns: 82px minmax(0, 1fr);
   align-items: stretch;
 }
 
@@ -1073,7 +1073,13 @@ textarea[aria-invalid="true"] {
   align-items: center;
   min-width: 0;
   font-weight: 600;
-  overflow-wrap: anywhere;
+}
+
+/* Keep buyer GSTIN on one clean line */
+.invoice-buyer-meta-row:last-child strong {
+  white-space: nowrap;
+  font-size: 9.8px;
+  letter-spacing: -0.01em;
 }
 
 .invoice-items-section {
