@@ -2010,17 +2010,15 @@ textarea[aria-invalid="true"] {
    *
    * Hide every normal website element:
    * header, form, preview dialog, buttons, summary, etc.
-   *
-   * dialog/::backdrop are listed explicitly because Chrome can still
-   * print open modal top-layer content even when body children are hidden.
    */
-  body > *:not(#printRoot),
-  dialog,
-  dialog::backdrop,
-  #previewDialog,
-  #invoiceContent {
+  body > *:not(#printRoot) {
     display: none !important;
-    visibility: hidden !important;
+  }
+
+
+  #previewDialog,
+  #customerDialog {
+    display: none !important;
   }
 
 

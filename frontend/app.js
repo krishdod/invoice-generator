@@ -614,80 +614,87 @@
   }
 
   function printInvoice() {
-    if (!validateInvoice()) return;
+    if (!validateInvoice()) {
+      return;
+    }
 
+
+    /*
+     * Build the latest invoice in both:
+     * 1. invoiceContent -> screen preview
+     * 2. printRoot     -> print-only document
+     */
     buildInvoiceDocument();
 
+
+    /*
+     * IMPORTANT:
+     * A modal <dialog> is placed in the browser's top layer.
+     * It must be closed before printing.
+     */
     if (els.previewDialog.open) {
       els.previewDialog.close();
     }
 
+
     const previousTitle = document.title;
+
+
     const customer = getSelectedCustomer();
-    const invoiceNo = sanitizeFilenamePart(els.invoiceNo.value.trim() || "invoice");
-    const buyerName = sanitizeFilenamePart(customer?.name || "customer");
-    const printTitle = `${buyerName}_(Invoice_${invoiceNo})`;
 
-    document.title = printTitle;
 
-    const stylesheetHref = new URL("/app.css", window.location.href).href;
-    const invoiceHtml = els.printRoot.innerHTML;
+    const invoiceNo = sanitizeFilenamePart(
+      els.invoiceNo.value.trim() || "invoice"
+    );
 
-    const iframe = document.createElement("iframe");
-    iframe.setAttribute("aria-hidden", "true");
-    iframe.setAttribute("tabindex", "-1");
-    iframe.style.cssText =
-      "position:fixed;right:0;bottom:0;width:0;height:0;border:0;visibility:hidden";
 
-    document.body.appendChild(iframe);
+    const buyerName = sanitizeFilenamePart(
+      customer?.name || "customer"
+    );
 
-    const printWindow = iframe.contentWindow;
-    const printDoc = iframe.contentDocument;
 
-    printDoc.open();
-    printDoc.write(`<!doctype html>
-<html lang="en">
-<head>
-  <meta charset="utf-8">
-  <title>${escapeHtml(printTitle)}</title>
-  <link rel="stylesheet" href="${stylesheetHref}">
-</head>
-<body>
-  <div id="printRoot">${invoiceHtml}</div>
-</body>
-</html>`);
-    printDoc.close();
+    document.title =
+      `${buyerName}_(Invoice_${invoiceNo})`;
 
-    let finished = false;
-    let printed = false;
 
-    const finish = () => {
-      if (finished) return;
-      finished = true;
-
+    /*
+     * Restore the website title after printing.
+     */
+    const restoreTitle = () => {
       document.title = previousTitle;
-      iframe.remove();
+
+
+      window.removeEventListener(
+        "afterprint",
+        restoreTitle
+      );
     };
 
-    const runPrint = () => {
-      if (finished || printed) return;
-      printed = true;
 
-      printWindow.focus();
-      printWindow.addEventListener("afterprint", finish, { once: true });
-      printWindow.print();
-      window.setTimeout(finish, 2000);
-    };
+    window.addEventListener(
+      "afterprint",
+      restoreTitle
+    );
 
-    const stylesheet = printDoc.querySelector('link[rel="stylesheet"]');
 
-    if (stylesheet) {
-      stylesheet.addEventListener("load", runPrint, { once: true });
-      stylesheet.addEventListener("error", runPrint, { once: true });
-      window.setTimeout(runPrint, 900);
-    } else {
-      runPrint();
-    }
+    /*
+     * Print THIS document.
+     *
+     * @media print in app.css hides everything
+     * except #printRoot.
+     */
+    window.print();
+
+
+    /*
+     * Fallback for browsers where afterprint
+     * behaves inconsistently.
+     */
+    window.setTimeout(() => {
+      if (document.title !== previousTitle) {
+        restoreTitle();
+      }
+    }, 1500);
   }
 
   function scalePreviewForSmallScreen() {
