@@ -1699,7 +1699,7 @@ textarea[aria-invalid="true"] {
 @media print {
 
   @page {
-    size: A4 portrait;
+    size: 210mm 297mm;
     margin: 8mm;
   }
 
@@ -1755,17 +1755,16 @@ textarea[aria-invalid="true"] {
   }
 
 
-  /*
-   * A4 printable area:
-   *
-   * 297mm height
-   * - 8mm top
-   * - 8mm bottom
-   * = 281mm
-   */
   #printRoot .invoice-document {
     width: 100% !important;
-    min-height: 281mm !important;
+
+    /*
+     * A4 printable area with 8mm margins is about 281mm.
+     * We intentionally leave ~7mm safety room so Android,
+     * iOS and desktop print engines don't push a tiny
+     * overflow onto page 2.
+     */
+    min-height: 274mm !important;
 
     margin: 0 !important;
     padding: 0 !important;
@@ -1807,8 +1806,13 @@ textarea[aria-invalid="true"] {
   /* ---------- item table ---------- */
 
   #printRoot .invoice-items-section {
-    flex: 1 1 72mm !important;
-    min-height: 72mm !important;
+    /*
+     * Still expands automatically when there is free space,
+     * but is allowed to shrink on print engines that need
+     * slightly more room for the footer/totals.
+     */
+    flex: 1 1 58mm !important;
+    min-height: 58mm !important;
   }
 
   #printRoot .invoice-items {
