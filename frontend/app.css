@@ -911,6 +911,11 @@ textarea[aria-invalid="true"] {
 }
 
 .invoice-document {
+  --invoice-rule: 0.75pt;
+  --invoice-rule-strong: 1pt;
+  --invoice-rule-color: #111;
+  --invoice-label-bg: #f7f7f7;
+
   width: 210mm;
   min-height: 297mm;
   margin: 0 auto;
@@ -945,7 +950,23 @@ textarea[aria-invalid="true"] {
   font-size: 11px;
 }
 
+/* =========================================================
+   JCF INVOICE - PRINT / BORDER CONSISTENCY
+   Single canonical ruleset (computed style preserved from
+   former override + professional item-table cascade).
+   ========================================================= */
+
+.invoice-document,
+.invoice-document *,
+#printRoot .invoice-document,
+#printRoot .invoice-document * {
+  box-sizing: border-box;
+}
+
+/* ---------- top information boxes ---------- */
+
 .invoice-grid-2 {
+  width: 100%;
   margin-top: 8px;
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
@@ -955,23 +976,22 @@ textarea[aria-invalid="true"] {
 
 .invoice-box {
   min-width: 0;
-  overflow: hidden;
   display: flex;
   align-self: stretch;
-  border: 1px solid #111;
+  border:
+    var(--invoice-rule)
+    solid
+    var(--invoice-rule-color);
   background: #fff;
+  overflow: hidden;
 }
 
-/*
-  A grid row stretches both invoice boxes to the same height.
-  The table must also fill that stretched box; otherwise the inner
-  vertical divider stops early and looks misaligned.
-*/
 .invoice-kv {
   width: 100%;
   height: 100%;
   table-layout: fixed;
   border-collapse: collapse;
+  border-spacing: 0;
 }
 
 .invoice-kv tbody {
@@ -984,36 +1004,52 @@ textarea[aria-invalid="true"] {
 
 .invoice-kv td {
   padding: 6px 8px;
-  border-bottom: 1px solid #111;
+  border: 0;
   vertical-align: top;
   line-height: 1.38;
 }
 
-.invoice-kv tr:last-child td {
-  border-bottom: 0;
+.invoice-kv td + td {
+  border-left:
+    var(--invoice-rule)
+    solid
+    var(--invoice-rule-color);
 }
 
-.invoice-kv td + td {
-  border-left: 1px solid #111;
+.invoice-kv tr + tr td {
+  border-top:
+    var(--invoice-rule)
+    solid
+    var(--invoice-rule-color);
 }
 
 .invoice-kv__label {
   width: 38%;
   font-weight: 700;
-  background: #f7f7f7;
+  background: var(--invoice-label-bg);
 }
 
 .invoice-kv td:not(.invoice-kv__label) {
   overflow-wrap: anywhere;
-  word-break: normal;
 }
 
+.invoice-kv tr:only-child td {
+  vertical-align: middle;
+}
+
+/* ---------- buyer details ---------- */
+
 .invoice-buyer-card {
+  width: 100%;
   margin-top: 8px;
   display: grid;
   grid-template-columns: minmax(0, 1fr) 225px;
-  border: 1px solid #111;
+  border:
+    var(--invoice-rule)
+    solid
+    var(--invoice-rule-color);
   background: #fff;
+  overflow: hidden;
 }
 
 .invoice-buyer-main {
@@ -1042,7 +1078,11 @@ textarea[aria-invalid="true"] {
 }
 
 .invoice-buyer-meta {
-  border-left: 1px solid #111;
+  min-width: 0;
+  border-left:
+    var(--invoice-rule)
+    solid
+    var(--invoice-rule-color);
 }
 
 .invoice-buyer-meta-row {
@@ -1053,7 +1093,10 @@ textarea[aria-invalid="true"] {
 }
 
 .invoice-buyer-meta-row + .invoice-buyer-meta-row {
-  border-top: 1px solid #111;
+  border-top:
+    var(--invoice-rule)
+    solid
+    var(--invoice-rule-color);
 }
 
 .invoice-buyer-meta-row span,
@@ -1065,62 +1108,183 @@ textarea[aria-invalid="true"] {
   display: flex;
   align-items: center;
   font-weight: 700;
-  background: #f7f7f7;
+  background: var(--invoice-label-bg);
+  border-right:
+    var(--invoice-rule)
+    solid
+    var(--invoice-rule-color);
 }
 
 .invoice-buyer-meta-row strong {
+  min-width: 0;
   display: flex;
   align-items: center;
-  min-width: 0;
   font-weight: 600;
 }
 
-/* Keep buyer GSTIN on one clean line */
 .invoice-buyer-meta-row:last-child strong {
   white-space: nowrap;
   font-size: 9.8px;
   letter-spacing: -0.01em;
+  font-variant-numeric: tabular-nums;
 }
 
+/* ---------- items & services ---------- */
+
 .invoice-items-section {
-  flex: 1 1 72mm;
+  width: 100%;
   min-height: 72mm;
   margin-top: 8px;
+  flex: 1 1 72mm;
   display: flex;
   flex-direction: column;
+  border:
+    var(--invoice-rule)
+    solid
+    var(--invoice-rule-color);
+  background: #fff;
 }
 
 .invoice-items {
   width: 100%;
   margin: 0;
+  table-layout: fixed;
   border-collapse: collapse;
+  border-spacing: 0;
+  border: 0;
+  font-size: 10px;
+}
+
+.invoice-items th:nth-child(1),
+.invoice-items td:nth-child(1) {
+  width: 7%;
+}
+
+.invoice-items th:nth-child(2),
+.invoice-items td:nth-child(2) {
+  width: 29%;
+}
+
+.invoice-items th:nth-child(3),
+.invoice-items td:nth-child(3) {
+  width: 9%;
+}
+
+.invoice-items th:nth-child(4),
+.invoice-items td:nth-child(4) {
+  width: 12%;
+}
+
+.invoice-items th:nth-child(5),
+.invoice-items td:nth-child(5) {
+  width: 10%;
+}
+
+.invoice-items th:nth-child(6),
+.invoice-items td:nth-child(6) {
+  width: 10%;
+}
+
+.invoice-items th:nth-child(7),
+.invoice-items td:nth-child(7) {
+  width: 8%;
+}
+
+.invoice-items th:nth-child(8),
+.invoice-items td:nth-child(8) {
+  width: 15%;
 }
 
 .invoice-items th,
 .invoice-items td {
-  padding: 5px 5px;
-  border: 1px solid #111;
+  border: 0;
+  border-right:
+    var(--invoice-rule)
+    solid
+    var(--invoice-rule-color);
+  border-bottom:
+    var(--invoice-rule)
+    solid
+    var(--invoice-rule-color);
   text-align: center;
+  vertical-align: middle;
+}
+
+.invoice-items th:last-child,
+.invoice-items td:last-child {
+  border-right: 0;
 }
 
 .invoice-items th {
+  height: 40px;
+  padding: 5px 4px;
+  font-size: 9px;
+  line-height: 1.2;
   font-weight: 700;
-  background: #f6f6f6;
+  text-align: center;
+  vertical-align: middle;
+  background: #f5f5f5;
+}
+
+.invoice-items td {
+  min-height: 42px;
+  padding: 7px 5px;
+  font-size: 10px;
+  line-height: 1.25;
+  vertical-align: middle;
 }
 
 .invoice-items .text-left {
   text-align: left;
 }
 
+.invoice-items td:nth-child(2) {
+  padding-left: 8px;
+  padding-right: 8px;
+  text-align: left;
+  font-weight: 500;
+  overflow-wrap: normal;
+  word-break: normal;
+}
+
+.invoice-items td:nth-child(1),
+.invoice-items td:nth-child(3),
+.invoice-items td:nth-child(4),
+.invoice-items td:nth-child(5),
+.invoice-items td:nth-child(6),
+.invoice-items td:nth-child(7),
+.invoice-items td:nth-child(8) {
+  white-space: nowrap;
+}
+
+.invoice-items td:nth-child(5) {
+  font-variant-numeric: tabular-nums;
+}
+
+.invoice-items td:nth-child(6) {
+  text-align: right;
+  padding-right: 8px;
+  font-variant-numeric: tabular-nums;
+}
+
+.invoice-items td:nth-child(8) {
+  text-align: right;
+  padding-right: 8px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
 .invoice-items-fill {
   flex: 1 1 auto;
   min-height: 26mm;
-  border: 1px solid #111;
-  border-top: 0;
+  border: 0;
   background: #fff;
 }
 
+/* ---------- bank details + totals ---------- */
+
 .invoice-settlement {
+  width: 100%;
   margin-top: 8px;
   display: grid;
   grid-template-columns: minmax(0, 1fr) 285px;
@@ -1130,7 +1294,10 @@ textarea[aria-invalid="true"] {
 
 .invoice-bank-box,
 .invoice-total-box {
-  border: 1px solid #111;
+  border:
+    var(--invoice-rule)
+    solid
+    var(--invoice-rule-color);
   background: #fff;
 }
 
@@ -1142,11 +1309,15 @@ textarea[aria-invalid="true"] {
 .invoice-bank-label {
   padding: 8px 9px;
   font-weight: 800;
-  background: #f7f7f7;
-  border-right: 1px solid #111;
+  background: var(--invoice-label-bg);
+  border-right:
+    var(--invoice-rule)
+    solid
+    var(--invoice-rule-color);
 }
 
 .invoice-bank-content {
+  min-width: 0;
   padding: 7px 9px;
   line-height: 1.42;
 }
@@ -1179,20 +1350,36 @@ textarea[aria-invalid="true"] {
   gap: 20px;
 }
 
+.invoice-total-line strong {
+  font-variant-numeric: tabular-nums;
+}
+
 .invoice-total-line--final {
   margin-top: 4px;
   padding-top: 6px;
-  border-top: 1px solid #111;
+  border-top:
+    var(--invoice-rule-strong)
+    solid
+    var(--invoice-rule-color);
   font-weight: 800;
 }
 
+/* ---------- amount in words / certificate ---------- */
+
 .invoice-note-box {
+  width: 100%;
   margin-top: 8px;
   padding: 7px 8px;
-  border: 1px solid #111;
+  border:
+    var(--invoice-rule)
+    solid
+    var(--invoice-rule-color);
 }
 
+/* ---------- signature ---------- */
+
 .invoice-signature {
+  width: 100%;
   margin-top: 8px;
   display: flex;
   justify-content: flex-end;
@@ -1203,7 +1390,10 @@ textarea[aria-invalid="true"] {
   min-height: 90px;
   padding: 8px;
   text-align: center;
-  border: 1px solid #111;
+  border:
+    var(--invoice-rule)
+    solid
+    var(--invoice-rule-color);
 }
 
 .invoice-signature__box strong {
@@ -1214,13 +1404,24 @@ textarea[aria-invalid="true"] {
   margin-top: 45px;
 }
 
+/* ---------- footer ---------- */
+
 .invoice-footer {
   margin-top: 18px;
   padding-top: 12px;
-  color: #777;
-  border-top: 1px solid #ddd;
+  color: #666;
+  border-top: 0.5pt solid #d0d0d0;
   text-align: center;
   font-style: italic;
+}
+
+/* Right-most outer edge: match left-rule visual weight. */
+.invoice-grid-2 > .invoice-box:last-child,
+.invoice-buyer-card,
+.invoice-items-section,
+.invoice-settlement > .invoice-total-box,
+.invoice-note-box {
+  border-right-width: var(--invoice-rule-strong);
 }
 
 .print-root { display: none; }
@@ -1483,657 +1684,6 @@ textarea[aria-invalid="true"] {
     animation-iteration-count: 1 !important;
   }
 }
-
-/* =========================================================
-   JCF INVOICE - FINAL PRINT/BORDER CONSISTENCY OVERRIDE
-   ========================================================= */
-
-.invoice-document {
-  --invoice-rule: 0.75pt;
-  --invoice-rule-strong: 1pt;
-  --invoice-rule-color: #111;
-  --invoice-label-bg: #f7f7f7;
-}
-
-/* Every invoice element uses predictable border-box sizing */
-.invoice-document,
-.invoice-document *,
-#printRoot .invoice-document,
-#printRoot .invoice-document * {
-  box-sizing: border-box;
-}
-
-
-/* =========================================================
-   TOP INFORMATION BOXES
-   ========================================================= */
-
-.invoice-grid-2 {
-  width: 100%;
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-  gap: 7px;
-  align-items: stretch;
-}
-
-.invoice-box {
-  min-width: 0;
-  display: flex;
-  align-self: stretch;
-
-  border:
-    var(--invoice-rule)
-    solid
-    var(--invoice-rule-color);
-
-  background: #fff;
-  overflow: hidden;
-}
-
-.invoice-kv {
-  width: 100%;
-  height: 100%;
-  table-layout: fixed;
-  border-collapse: collapse;
-  border-spacing: 0;
-}
-
-.invoice-kv tbody {
-  height: 100%;
-}
-
-/* Reset old borders so there can never be doubled lines */
-.invoice-kv td {
-  padding: 6px 8px;
-
-  border: 0;
-
-  vertical-align: top;
-  line-height: 1.38;
-}
-
-/* Vertical divider between label and value */
-.invoice-kv td + td {
-  border-left:
-    var(--invoice-rule)
-    solid
-    var(--invoice-rule-color);
-}
-
-/* Horizontal divider between rows */
-.invoice-kv tr + tr td {
-  border-top:
-    var(--invoice-rule)
-    solid
-    var(--invoice-rule-color);
-}
-
-.invoice-kv__label {
-  width: 38%;
-  font-weight: 700;
-  background: var(--invoice-label-bg);
-}
-
-.invoice-kv td:not(.invoice-kv__label) {
-  overflow-wrap: anywhere;
-}
-
-/*
-  PAN is a single row paired with the two-row
-  Order No / Destination box.
-  Centering it vertically makes the pair look intentional.
-*/
-.invoice-kv tr:only-child td {
-  vertical-align: middle;
-}
-
-
-/* =========================================================
-   BUYER DETAILS
-   ========================================================= */
-
-.invoice-buyer-card {
-  width: 100%;
-  margin-top: 8px;
-
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) 225px;
-
-  border:
-    var(--invoice-rule)
-    solid
-    var(--invoice-rule-color);
-
-  background: #fff;
-  overflow: hidden;
-}
-
-.invoice-buyer-main {
-  min-width: 0;
-  padding: 8px 10px 9px;
-}
-
-.invoice-section-caption {
-  margin-bottom: 5px;
-
-  font-size: 10px;
-  font-weight: 800;
-  letter-spacing: 0.045em;
-  text-transform: uppercase;
-}
-
-.invoice-buyer-name {
-  font-size: 12.5px;
-  font-weight: 800;
-  line-height: 1.3;
-}
-
-.invoice-buyer-address {
-  max-width: 96%;
-  margin-top: 4px;
-  line-height: 1.45;
-}
-
-
-/* Right metadata block */
-.invoice-buyer-meta {
-  min-width: 0;
-
-  border-left:
-    var(--invoice-rule)
-    solid
-    var(--invoice-rule-color);
-}
-
-.invoice-buyer-meta-row {
-  min-height: 36px;
-
-  display: grid;
-
-  /* Label | Value */
-  grid-template-columns: 82px minmax(0, 1fr);
-
-  align-items: stretch;
-}
-
-/* State Code / GSTIN horizontal separator */
-.invoice-buyer-meta-row + .invoice-buyer-meta-row {
-  border-top:
-    var(--invoice-rule)
-    solid
-    var(--invoice-rule-color);
-}
-
-.invoice-buyer-meta-row span,
-.invoice-buyer-meta-row strong {
-  padding: 7px 8px;
-}
-
-/*
-  IMPORTANT:
-  This is the divider that is still missing
-  in your current generated PDF.
-*/
-.invoice-buyer-meta-row span {
-  display: flex;
-  align-items: center;
-
-  font-weight: 700;
-  background: var(--invoice-label-bg);
-
-  border-right:
-    var(--invoice-rule)
-    solid
-    var(--invoice-rule-color);
-}
-
-.invoice-buyer-meta-row strong {
-  min-width: 0;
-
-  display: flex;
-  align-items: center;
-
-  font-weight: 600;
-}
-
-/* GSTIN must always remain on one line */
-.invoice-buyer-meta-row:last-child strong {
-  white-space: nowrap;
-
-  font-size: 9.8px;
-  letter-spacing: -0.01em;
-  font-variant-numeric: tabular-nums;
-}
-
-
-/* =========================================================
-   ITEMS & SERVICES
-   ========================================================= */
-
-.invoice-items-section {
-  width: 100%;
-  min-height: 72mm;
-  margin-top: 8px;
-
-  flex: 1 1 72mm;
-
-  display: flex;
-  flex-direction: column;
-
-  /*
-    ONE element owns the entire outside border.
-    This prevents broken/misaligned right edges.
-  */
-  border:
-    var(--invoice-rule)
-    solid
-    var(--invoice-rule-color);
-
-  background: #fff;
-}
-
-.invoice-items {
-  width: 100%;
-  margin: 0;
-
-  table-layout: fixed;
-  border-collapse: collapse;
-  border-spacing: 0;
-
-  /* Parent owns the outside border */
-  border: 0;
-}
-
-.invoice-items th,
-.invoice-items td {
-  padding: 5px;
-
-  border: 0;
-
-  /*
-    Internal grid only.
-  */
-  border-right:
-    var(--invoice-rule)
-    solid
-    var(--invoice-rule-color);
-
-  border-bottom:
-    var(--invoice-rule)
-    solid
-    var(--invoice-rule-color);
-
-  text-align: center;
-  vertical-align: middle;
-}
-
-.invoice-items th:last-child,
-.invoice-items td:last-child {
-  /* Parent supplies the right-most outer line */
-  border-right: 0;
-}
-
-.invoice-items th {
-  font-weight: 700;
-  background: #f6f6f6;
-}
-
-.invoice-items .text-left {
-  text-align: left;
-}
-
-/*
-  Blank page-filling area.
-  Absolutely NO border here:
-  the parent section owns the outside frame.
-*/
-.invoice-items-fill {
-  flex: 1 1 auto;
-  min-height: 26mm;
-
-  border: 0;
-  background: #fff;
-}
-
-
-/* =========================================================
-   BANK DETAILS + TOTALS
-   ========================================================= */
-
-.invoice-settlement {
-  width: 100%;
-  margin-top: 8px;
-
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) 285px;
-  gap: 7px;
-
-  align-items: stretch;
-}
-
-.invoice-bank-box,
-.invoice-total-box {
-  border:
-    var(--invoice-rule)
-    solid
-    var(--invoice-rule-color);
-
-  background: #fff;
-}
-
-.invoice-bank-box {
-  display: grid;
-  grid-template-columns: 112px minmax(0, 1fr);
-}
-
-.invoice-bank-label {
-  padding: 8px 9px;
-
-  font-weight: 800;
-  background: var(--invoice-label-bg);
-
-  border-right:
-    var(--invoice-rule)
-    solid
-    var(--invoice-rule-color);
-}
-
-.invoice-bank-content {
-  min-width: 0;
-  padding: 7px 9px;
-  line-height: 1.42;
-}
-
-.invoice-bank-line {
-  display: grid;
-  grid-template-columns: 92px minmax(0, 1fr);
-  gap: 8px;
-}
-
-.invoice-bank-line span {
-  font-weight: 700;
-}
-
-.invoice-bank-line strong {
-  min-width: 0;
-  font-weight: 500;
-  overflow-wrap: anywhere;
-}
-
-
-/* Totals */
-.invoice-total-box {
-  padding: 7px 8px;
-}
-
-.invoice-total-line {
-  min-height: 25px;
-
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-
-  gap: 20px;
-}
-
-.invoice-total-line strong {
-  font-variant-numeric: tabular-nums;
-}
-
-/*
-  TOTAL is the only place where a slightly
-  stronger line is intentional.
-*/
-.invoice-total-line--final {
-  margin-top: 4px;
-  padding-top: 6px;
-
-  border-top:
-    var(--invoice-rule-strong)
-    solid
-    var(--invoice-rule-color);
-
-  font-weight: 800;
-}
-
-
-/* =========================================================
-   AMOUNT IN WORDS / CERTIFICATE
-   ========================================================= */
-
-.invoice-note-box {
-  width: 100%;
-  margin-top: 8px;
-  padding: 7px 8px;
-
-  border:
-    var(--invoice-rule)
-    solid
-    var(--invoice-rule-color);
-}
-
-
-/* =========================================================
-   SIGNATURE
-   ========================================================= */
-
-.invoice-signature {
-  width: 100%;
-  margin-top: 8px;
-
-  display: flex;
-  justify-content: flex-end;
-}
-
-.invoice-signature__box {
-  width: 235px;
-  min-height: 90px;
-  padding: 8px;
-
-  text-align: center;
-
-  border:
-    var(--invoice-rule)
-    solid
-    var(--invoice-rule-color);
-}
-
-.invoice-signature__box strong {
-  display: block;
-}
-
-.invoice-signature__label {
-  margin-top: 45px;
-}
-
-
-/* =========================================================
-   FOOTER
-   ========================================================= */
-
-.invoice-footer {
-  margin-top: 18px;
-  padding-top: 12px;
-
-  color: #666;
-
-  /* Intentionally lighter than invoice grid lines */
-  border-top: 0.5pt solid #d0d0d0;
-
-  text-align: center;
-  font-style: italic;
-}
-
-
-/* =========================================================
-   RIGHT-MOST OUTER EDGE
-   Match visual weight of the left rules (0.75pt can
-   snap thinner on the right at some zoom/PDF scales).
-   ========================================================= */
-
-.invoice-grid-2 > .invoice-box:last-child,
-.invoice-buyer-card,
-.invoice-items-section,
-.invoice-settlement > .invoice-total-box,
-.invoice-note-box {
-  border-right-width: var(--invoice-rule-strong);
-}
-
-
-/* =========================================================
-   JCF - PROFESSIONAL INVOICE ITEM TABLE
-   ========================================================= */
-
-.invoice-items {
-  width: 100%;
-  margin: 0;
-
-  table-layout: fixed;
-  border-collapse: collapse;
-  border-spacing: 0;
-
-  font-size: 10px;
-}
-
-
-/* ---------------------------------------------------------
-   COLUMN WIDTHS
-   Total = 100%
-   --------------------------------------------------------- */
-
-/* SR.NO */
-.invoice-items th:nth-child(1),
-.invoice-items td:nth-child(1) {
-  width: 7%;
-}
-
-/* Description */
-.invoice-items th:nth-child(2),
-.invoice-items td:nth-child(2) {
-  width: 29%;
-}
-
-/* Size */
-.invoice-items th:nth-child(3),
-.invoice-items td:nth-child(3) {
-  width: 9%;
-}
-
-/* HSN/SAC */
-.invoice-items th:nth-child(4),
-.invoice-items td:nth-child(4) {
-  width: 12%;
-}
-
-/* Quantity */
-.invoice-items th:nth-child(5),
-.invoice-items td:nth-child(5) {
-  width: 10%;
-}
-
-/* Rate */
-.invoice-items th:nth-child(6),
-.invoice-items td:nth-child(6) {
-  width: 10%;
-}
-
-/* Unit */
-.invoice-items th:nth-child(7),
-.invoice-items td:nth-child(7) {
-  width: 8%;
-}
-
-/* Amount */
-.invoice-items th:nth-child(8),
-.invoice-items td:nth-child(8) {
-  width: 15%;
-}
-
-
-/* ---------------------------------------------------------
-   HEADER
-   --------------------------------------------------------- */
-
-.invoice-items th {
-  height: 40px;
-  padding: 5px 4px;
-
-  font-size: 9px;
-  line-height: 1.2;
-  font-weight: 700;
-
-  text-align: center;
-  vertical-align: middle;
-
-  background: #f5f5f5;
-}
-
-
-/* ---------------------------------------------------------
-   ITEM ROW
-   --------------------------------------------------------- */
-
-.invoice-items td {
-  min-height: 42px;
-  padding: 7px 5px;
-
-  font-size: 10px;
-  line-height: 1.25;
-
-  vertical-align: middle;
-}
-
-
-/* Description gets the space and alignment it deserves */
-.invoice-items td:nth-child(2) {
-  padding-left: 8px;
-  padding-right: 8px;
-
-  text-align: left;
-
-  font-weight: 500;
-
-  overflow-wrap: normal;
-  word-break: normal;
-}
-
-
-/* All short numeric/data columns stay visually clean */
-.invoice-items td:nth-child(1),
-.invoice-items td:nth-child(3),
-.invoice-items td:nth-child(4),
-.invoice-items td:nth-child(5),
-.invoice-items td:nth-child(6),
-.invoice-items td:nth-child(7),
-.invoice-items td:nth-child(8) {
-  white-space: nowrap;
-}
-
-
-/* Quantity */
-.invoice-items td:nth-child(5) {
-  font-variant-numeric: tabular-nums;
-}
-
-
-/* Rate */
-.invoice-items td:nth-child(6) {
-  text-align: right;
-  padding-right: 8px;
-
-  font-variant-numeric: tabular-nums;
-}
-
-
-/* Amount */
-.invoice-items td:nth-child(8) {
-  text-align: right;
-  padding-right: 8px;
-
-  font-weight: 600;
-  font-variant-numeric: tabular-nums;
-}
-
 
 /* =========================================================
    JCF FINAL PRODUCTION PRINT

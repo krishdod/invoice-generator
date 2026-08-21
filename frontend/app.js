@@ -933,9 +933,6 @@
   }
 
   function numberToWords(amount) {
-    const rounded = Math.round(safeNumber(amount));
-    if (rounded === 0) return "ZERO ONLY";
-
     const ones = [
       "", "ONE", "TWO", "THREE", "FOUR", "FIVE", "SIX", "SEVEN", "EIGHT", "NINE",
       "TEN", "ELEVEN", "TWELVE", "THIRTEEN", "FOURTEEN", "FIFTEEN", "SIXTEEN",
@@ -960,31 +957,56 @@
       ].filter(Boolean).join(" ");
     }
 
-    const parts = [];
-    let remaining = rounded;
+    function integerToWords(value) {
+      if (value === 0) return "ZERO";
 
-    const crore = Math.floor(remaining / 10000000);
-    if (crore) {
-      parts.push(`${underThousand(crore)} CRORE`);
-      remaining %= 10000000;
+      const parts = [];
+      let remaining = value;
+
+      const crore = Math.floor(remaining / 10000000);
+      if (crore) {
+        parts.push(`${underThousand(crore)} CRORE`);
+        remaining %= 10000000;
+      }
+
+      const lakh = Math.floor(remaining / 100000);
+      if (lakh) {
+        parts.push(`${underHundred(lakh)} LAKH`);
+        remaining %= 100000;
+      }
+
+      const thousand = Math.floor(remaining / 1000);
+      if (thousand) {
+        parts.push(`${underHundred(thousand)} THOUSAND`);
+        remaining %= 1000;
+      }
+
+      if (remaining) {
+        parts.push(underThousand(remaining));
+      }
+
+      return parts.join(" ");
     }
 
-    const lakh = Math.floor(remaining / 100000);
-    if (lakh) {
-      parts.push(`${underHundred(lakh)} LAKH`);
-      remaining %= 100000;
+    // Work in paise to avoid float drift and preserve fractional rupees.
+    const totalPaise = Math.round(safeNumber(amount) * 100);
+    if (totalPaise === 0) return "ZERO RUPEES ONLY";
+
+    const rupees = Math.floor(totalPaise / 100);
+    const paise = totalPaise % 100;
+    const rupeeWords = integerToWords(rupees);
+    const rupeeUnit = rupees === 1 ? "RUPEE" : "RUPEES";
+
+    if (paise === 0) {
+      return `${rupeeWords} ${rupeeUnit} ONLY`;
     }
 
-    const thousand = Math.floor(remaining / 1000);
-    if (thousand) {
-      parts.push(`${underHundred(thousand)} THOUSAND`);
-      remaining %= 1000;
+    const paiseWords = integerToWords(paise);
+    const paiseUnit = paise === 1 ? "PAISA" : "PAISE";
+    if (rupees === 0) {
+      return `${paiseWords} ${paiseUnit} ONLY`;
     }
 
-    if (remaining) {
-      parts.push(underThousand(remaining));
-    }
-
-    return `${parts.join(" ")} ONLY`;
+    return `${rupeeWords} ${rupeeUnit} AND ${paiseWords} ${paiseUnit} ONLY`;
   }
 })();

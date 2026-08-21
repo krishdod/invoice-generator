@@ -1,5 +1,11 @@
 const JSON_HEADERS = {
-  "Content-Type": "application/json; charset=UTF-8"
+  "Content-Type": "application/json; charset=UTF-8",
+  "Cache-Control": "no-store",
+  "X-Content-Type-Options": "nosniff",
+  "X-Frame-Options": "DENY",
+  "Referrer-Policy": "no-referrer",
+  "Permissions-Policy": "camera=(), microphone=(), geolocation=(), payment=()",
+  "Cross-Origin-Opener-Policy": "same-origin"
 };
 
 function json(payload, status = 200) {
@@ -59,8 +65,8 @@ export async function onRequestPost(context) {
   try {
     const body = await context.request.json();
 
-    const name = clean(body.name, 200);
-    const address = clean(body.address, 500);
+    const name = clean(body.name, 150);
+    const address = clean(body.address, 1000);
     const gstin = normalizeGstin(body.gstin);
     const stateCode = clean(body.state_code || "24", 2);
     const phone = clean(body.phone, 30);
