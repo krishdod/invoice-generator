@@ -1162,12 +1162,12 @@ textarea[aria-invalid="true"] {
 
 .invoice-items th:nth-child(2),
 .invoice-items td:nth-child(2) {
-  width: 29%;
+  width: 26%;
 }
 
 .invoice-items th:nth-child(3),
 .invoice-items td:nth-child(3) {
-  width: 9%;
+  width: 12%;
 }
 
 .invoice-items th:nth-child(4),
@@ -1248,13 +1248,20 @@ textarea[aria-invalid="true"] {
 }
 
 .invoice-items td:nth-child(1),
-.invoice-items td:nth-child(3),
 .invoice-items td:nth-child(4),
 .invoice-items td:nth-child(5),
 .invoice-items td:nth-child(6),
 .invoice-items td:nth-child(7),
 .invoice-items td:nth-child(8) {
   white-space: nowrap;
+}
+
+/* Size values */
+.invoice-items td:nth-child(3) {
+  white-space: normal;
+  overflow-wrap: anywhere;
+  word-break: normal;
+  text-align: center;
 }
 
 .invoice-items td:nth-child(5) {

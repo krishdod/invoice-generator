@@ -526,20 +526,53 @@
   }
 
   function updateTotals() {
-    const subtotal = state.items.reduce((sum, item) => sum + calculateItemAmount(item), 0);
-    const freight = Math.max(0, safeNumber(els.freightCharges.value));
-    const taxable = subtotal + freight;
+    const subtotal = state.items.reduce(
+      (sum, item) => sum + calculateItemAmount(item),
+      0
+    );
+
+    const freight = Math.max(
+      0,
+      safeNumber(els.freightCharges.value)
+    );
+
+    /*
+     * GST is calculated ONLY on the item subtotal.
+     * Freight is added AFTER CGST + SGST.
+     */
+    const taxable = subtotal;
+
     const cgst = taxable * 0.09;
     const sgst = taxable * 0.09;
-    const total = taxable + cgst + sgst;
 
-    state.totals = { subtotal, freight, cgst, sgst, total };
+    const total =
+      subtotal +
+      cgst +
+      sgst +
+      freight;
 
-    els.summarySubtotal.textContent = formatMoney(subtotal);
-    els.summaryFreight.textContent = formatMoney(freight);
-    els.summaryCgst.textContent = formatMoney(cgst);
-    els.summarySgst.textContent = formatMoney(sgst);
-    els.summaryTotal.textContent = formatMoney(total);
+    state.totals = {
+      subtotal,
+      freight,
+      cgst,
+      sgst,
+      total
+    };
+
+    els.summarySubtotal.textContent =
+      formatMoney(subtotal);
+
+    els.summaryCgst.textContent =
+      formatMoney(cgst);
+
+    els.summarySgst.textContent =
+      formatMoney(sgst);
+
+    els.summaryFreight.textContent =
+      formatMoney(freight);
+
+    els.summaryTotal.textContent =
+      formatMoney(total);
 
     updateItemCount();
   }
@@ -818,10 +851,30 @@
         </div>
 
         <div class="invoice-total-box">
-          ${invoiceTotalLine("Subtotal", state.totals.subtotal)}
-          ${state.totals.freight > 0 ? invoiceTotalLine("Freight", state.totals.freight) : ""}
-          ${invoiceTotalLine("Add CGST @ 9%", state.totals.cgst)}
-          ${invoiceTotalLine("Add SGST @ 9%", state.totals.sgst)}
+          ${invoiceTotalLine(
+            "Subtotal",
+            state.totals.subtotal
+          )}
+
+          ${invoiceTotalLine(
+            "Add CGST @ 9%",
+            state.totals.cgst
+          )}
+
+          ${invoiceTotalLine(
+            "Add SGST @ 9%",
+            state.totals.sgst
+          )}
+
+          ${
+            state.totals.freight > 0
+              ? invoiceTotalLine(
+                  "Freight Charges",
+                  state.totals.freight
+                )
+              : ""
+          }
+
           <div class="invoice-total-line invoice-total-line--final">
             <span>TOTAL</span>
             <strong>${formatMoney(state.totals.total)}</strong>
