@@ -17,13 +17,15 @@ Pages picks up `functions/` from the **project root** automatically. Keep that f
 
 ## D1 binding
 
-Do not change this:
+Do not change this in the Cloudflare Pages dashboard:
 
 | Binding | Database |
 |---------|----------|
 | `DB` | `jcf-invoices` |
 
 `functions/api/customers.js` reads `context.env.DB`. If the binding name is not `DB`, customer load/save will fail.
+
+Do **not** put a placeholder `database_id` in `wrangler.toml`. Pages reads that file on deploy and rejects invalid UUIDs (error 8000022). Keep D1 wired in the dashboard unless you paste the real database UUID from **Workers & Pages → D1 → jcf-invoices**.
 
 ## Static Cloudflare files
 

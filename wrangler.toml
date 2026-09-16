@@ -2,9 +2,8 @@ name = "invoice-generator-1"
 compatibility_date = "2026-09-15"
 pages_build_output_dir = "frontend"
 
-[[d1_databases]]
-binding = "DB"
-database_name = "jcf-invoices"
-# Replace with the real Cloudflare D1 UUID after `wrangler d1 list` / dashboard.
-# Local `wrangler pages dev` and `wrangler d1 execute --local` work with this placeholder.
-database_id = "00000000-0000-0000-0000-000000000001"
+# D1 is bound in the Cloudflare Pages dashboard as:
+#   binding: DB  ->  database: jcf-invoices
+# Do not put a placeholder database_id here — Pages deploy will reject it.
+# For local API work, pass the binding on the CLI:
+#   npx wrangler pages dev frontend --d1 DB=jcf-invoices
