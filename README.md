@@ -33,20 +33,18 @@ invoice-generator/
 From the repo root:
 
 ```bash
+npx wrangler pages dev
+```
+
+Or explicitly:
+
+```bash
 npx wrangler pages dev frontend --d1 DB=jcf-invoices
 ```
 
 Wrangler serves `frontend/` as static assets and loads `functions/` from the project root. Open the printed local URL (typically `http://localhost:8788`).
 
-The UI calls same-origin `/api/customers`. The D1 binding **must** be named `DB`.
-
-Local D1 starts empty. After the first `pages dev` start, create the table once:
-
-```bash
-npx wrangler d1 execute jcf-invoices --local --file=./migrations/0001_create_customers.sql
-```
-
-If that command says it cannot find the database, add the real D1 UUID from the Cloudflare dashboard to `wrangler.toml` under `[[d1_databases]]` (binding `DB`, name `jcf-invoices`), then rerun the migrate command. Never commit a fake/placeholder UUID — Pages deploy will fail.
+The UI calls same-origin `/api/customers`. The D1 binding **must** be named `DB`. Production uses the existing remote database `jcf-invoices` (`c908b5ba-dfee-4d71-a104-fed61f658376`) via `wrangler.toml` — do not create a new database.
 
 ## Production
 
