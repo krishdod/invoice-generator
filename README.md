@@ -33,12 +33,22 @@ invoice-generator/
 From the repo root:
 
 ```bash
+# One-time: create the local customers table
+npx wrangler d1 execute jcf-invoices --local --file=./migrations/0001_create_customers.sql
+
+# Start the app (uses wrangler.toml D1 binding DB -> jcf-invoices)
+npx wrangler pages dev
+```
+
+If you prefer the explicit flag:
+
+```bash
 npx wrangler pages dev frontend --d1 DB=jcf-invoices
 ```
 
 Wrangler serves `frontend/` as static assets and loads `functions/` from the project root. Open the printed local URL (typically `http://localhost:8788`).
 
-The UI calls same-origin `/api/customers`. The D1 binding **must** be named `DB`.
+The UI calls same-origin `/api/customers`. The D1 binding **must** be named `DB`. Local D1 starts empty — run the migration above before loading customers.
 
 ## Production
 

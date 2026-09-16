@@ -919,7 +919,7 @@ textarea[aria-invalid="true"] {
   width: 210mm;
   min-height: 297mm;
   margin: 0 auto;
-  padding: 10mm;
+  padding: 8mm;
   display: flex;
   flex-direction: column;
   color: #111;
@@ -1818,6 +1818,11 @@ textarea[aria-invalid="true"] {
   #printRoot .invoice-items {
     table-layout: fixed !important;
     width: 100% !important;
+  }
+
+  #printRoot .invoice-items-fill {
+    flex: 1 1 auto !important;
+    min-height: 0 !important;
   }
 
   #printRoot .invoice-items th {

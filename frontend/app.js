@@ -397,10 +397,10 @@
 
       row.innerHTML = `
         <td class="cell-description">${descriptionSelectHtml(item.description, index, false)}</td>
-        <td class="cell-size"><input data-key="size" type="text" value="${escapeAttribute(item.size)}" aria-label="Size for item ${index + 1}" placeholder="Size"></td>
+        <td class="cell-size"><input data-key="size" type="text" value="${escapeAttribute(item.size)}" aria-label="Size for item ${index + 1}"></td>
         <td class="cell-hsn"><input data-key="hsn" type="text" value="${escapeAttribute(item.hsn)}" aria-label="HSN or SAC for item ${index + 1}" inputmode="numeric"></td>
-        <td class="cell-qty"><input data-key="quantity" type="number" min="0" step="any" value="${escapeAttribute(item.quantity)}" aria-label="Quantity for item ${index + 1}" placeholder="0"></td>
-        <td class="cell-rate"><input data-key="rate" type="number" min="0" step="0.01" value="${escapeAttribute(item.rate)}" aria-label="Rate for item ${index + 1}" placeholder="0.00"></td>
+        <td class="cell-qty"><input data-key="quantity" type="number" min="0" step="any" value="${escapeAttribute(item.quantity)}" aria-label="Quantity for item ${index + 1}"></td>
+        <td class="cell-rate"><input data-key="rate" type="number" min="0" step="0.01" value="${escapeAttribute(item.rate)}" aria-label="Rate for item ${index + 1}"></td>
         <td class="cell-unit">${unitSelectHtml(item.unit, index, false)}</td>
         <td class="cell-amount amount-cell" data-amount-for="${index}">${formatMoney(calculateItemAmount(item))}</td>
         <td class="cell-action"><button class="row-remove" type="button" data-remove-index="${index}" aria-label="Remove item ${index + 1}" ${state.items.length === 1 ? "disabled" : ""}>×</button></td>
@@ -434,7 +434,7 @@
 
           <div class="field">
             <label for="m-size-${index}">Size</label>
-            <input id="m-size-${index}" data-key="size" type="text" value="${escapeAttribute(item.size)}" placeholder="e.g. 22">
+            <input id="m-size-${index}" data-key="size" type="text" value="${escapeAttribute(item.size)}">
           </div>
 
           <div class="field">
@@ -444,12 +444,12 @@
 
           <div class="field">
             <label for="m-qty-${index}">Quantity</label>
-            <input id="m-qty-${index}" data-key="quantity" type="number" min="0" step="any" value="${escapeAttribute(item.quantity)}" placeholder="0">
+            <input id="m-qty-${index}" data-key="quantity" type="number" min="0" step="any" value="${escapeAttribute(item.quantity)}">
           </div>
 
           <div class="field">
             <label for="m-rate-${index}">Rate</label>
-            <input id="m-rate-${index}" data-key="rate" type="number" min="0" step="0.01" value="${escapeAttribute(item.rate)}" placeholder="0.00">
+            <input id="m-rate-${index}" data-key="rate" type="number" min="0" step="0.01" value="${escapeAttribute(item.rate)}">
           </div>
 
           <div class="field">
@@ -687,7 +687,7 @@
 
 
     document.title =
-      `${buyerName}_(Invoice_${invoiceNo})`;
+      `${buyerName}( Invoice No. ${invoiceNo} )`;
 
 
     /*
@@ -954,10 +954,9 @@
 
   function sanitizeFilenamePart(value) {
     return String(value)
-      .replace(/[^\w\s-]/g, "")
+      .replace(/[<>:"/\\|?*\u0000-\u001f]/g, "-")
       .trim()
-      .replace(/\s+/g, "_")
-      .slice(0, 80) || "invoice";
+      .replace(/\s+/g, " ") || "invoice";
   }
 
   function escapeHtml(value) {
