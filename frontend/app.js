@@ -8,7 +8,7 @@
     gstin: "24AYCPD6656K1ZC",
     pan: "AYCPD6656K",
     bank: "NIDHI CO-OP. BANK LTD. C.T.M, Amraiwadi, Ahmedabad-26.",
-    account: "002111110008319",
+    account: "002111101008139",
     ifsc: "ICIC000NIDHI",
     contact: "+918128309214"
   };
